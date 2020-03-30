@@ -128,6 +128,7 @@ The Internet (and, more generally, TCP/IP networks) makes two transport protocol
   - Developers of Internet telephony applications usually prefer to run their applications over UDP, thereby circumventing TCP&#39;s congestion control mechanism and packet overheads. But because many firewalls are configured to block (most types of) UDP traffic, Internet telephony applications often are designed to use TCP as a backup if UDP communication fails.
 
 - **Some popular applications, their requirements, their application layer protocols and underlying transport protocols**
+
 ![Figure 2.4](images/chapter2/2_4.png)
 ![Figure 2.5](images/chapter2/2_5.png)
 
@@ -148,232 +149,210 @@ It is important to *distinguish* between network applications and application la
 - The Web was the first Internet application that caught the general public&#39;s eye.
 - The Web operates on demand (Users receive what they want, when they want it).
 - The Web uses the **client-server application architecture.**
-- The HyperText Transfer Protocol (HTTP), the Web&#39;s application-layer protocol, is at the heart of the Web.
-- HTTP is implemented in two programs: a client program and a server program. The client program and server program, executing on different end systems, talk to each other by exchanging HTTP messages. HTTP defines the structure of these messages and how the client and server exchange the messages.
+
+- The *HyperText Transfer Protocol* (HTTP), the Web&#39;s application-layer protocol, is at the heart of the Web.
+- HTTP is implemented in **two programs**: a client program and a server program. The client program and server program, executing on different end systems, talk to each other by exchanging HTTP messages. HTTP defines the structure of these messages and how the client and server exchange the messages.
 - A Web page (also called a document) consists of objects. An object is simply a file that is addressable by a single URL. Most Web pages consist of a base HTML file and several referenced objects. (No. of Objects = Base + referenced Objects)
-- Each URL has two components: hostname of the server that houses the object and the object&#39;s path name.
-- Web browsers implement the client side of HTTP,  Web servers implement the server side of HTTP.
+- Each URL has two components: **hostname of the server** that houses the object and the **object&#39;s path name.**
+- *Web browsers* implement the client side of HTTP,  Web servers implement the server side of HTTP.
 - HTTP defines how Web clients request Web pages from Web servers and how servers transfer Web pages to clients.
-- HTTP uses TCP as its underlying transport protocol. The HTTP client first initiates a TCP connection with the server. Once the connection is established, the browser and the server processes access TCP through their socket interfaces. (Both client and server send and receive messages through Socket)
-- Here we see one of the great advantages of a layered architecture—HTTP need not worry about lost data or the details of how TCP recovers from loss or reordering of data within the network. That is the job of TCP and the protocols in the lower layers of the protocol stack.
+- HTTP uses **TCP** as its underlying transport protocol. The HTTP client first initiates a TCP connection with the server. Once the connection is established, the browser and the server processes access TCP through their socket interfaces. (Both client and server send and receive messages through Socket)
+- Here we see one of the great advantages of a *layered architecture* where HTTP need not worry about lost data or the details of how TCP recovers from loss or reordering of data within the network. That is the job of TCP and the protocols in the lower layers of the protocol stack.
 - HTTP is said to be a **stateless protocol**. The server sends requested files to clients without storing any state information about the client.
 
-**2.2.2 Non-Persistent and Persistent Connections:**
+### 2.2.2 Non-Persistent and Persistent Connections
 
-- **●●** In many Internet applications, the client and server communicate for an extended period of time, with the client making a series of requests and the server responding to each of the requests.
-- **●●** When this client-server interaction is taking place over TCP, the application developer needs to make a decision—should each request/response pair be sent over a separate TCP connection, ( **non-persistent connections** ) or should all of the requests and their corresponding responses be sent over the same TCP connection ( **persistent connections** ) ?
-- **●●** Although HTTP uses persistent connections in its default mode, HTTP clients and servers can be configured to use non-persistent connections instead.
-- **●●**** HTTP with Non-Persistent Connections:** Let&#39;s suppose the page consists of a base HTML file and 10 JPEG images, and that all 11 of these objects reside on the same server. each TCP connection transports exactly one request message and one response message. Thus, in this example, when a user requests the
+- In many Internet applications, the client and server communicate for an extended period of time, with the client making a series of requests and the server responding to each of the requests.
 
-Web page, 11 TCP connections are generated.
+- When this client-server interaction is taking place over TCP, the application developer needs to make a decision—should each request/response pair be sent over a separate TCP connection, ( **non-persistent connections** ) or should all of the requests and their corresponding responses be sent over the same TCP connection ( **persistent connections** ) ?
+- Although HTTP uses persistent connections in its default mode, HTTP clients and servers can be configured to use non-persistent connections instead.
+- **HTTP with Non-Persistent Connections:** Let&#39;s suppose the page consists of a base HTML file and 10 JPEG images, and that all 11 of these objects reside on the same server. each TCP connection transports exactly one request message and one response message. Thus, in this example, when a user requests the web-page, 11 TCP connections are generated.
 
-- **●●**** Definition:** The round-trip time (RTT), which is the time it takes for a small packet to travel from client to server and then back to the client. The RTT includes packet-propagation delays, packet queuing delays in intermediate routers and switches, and packet-processing delays.
+- **The round-trip time (RTT)**, which is the time it takes for a small packet to travel from client to server and then back to the client. The RTT includes packet-propagation delays, packet queuing delays in intermediate routers and switches, and packet-processing delays.
 
+![Figure 2.7](images/chapter2/2_7.png)
 
-&quot;Three-way handshake&quot;—the client sends a small TCP segment to the server, the server acknowledges and responds with a small TCP segment, and, finally, the client acknowledges back to the server. The first two parts of the three-way handshake take one RTT. After completing the first two parts of the handshake, the client sends the HTTP request message combined with the third part of the three-way handshake (the acknowledgment) into the TCP connection. Once the request message arrives at the server, the server sends the HTML file into the TCP connection. This HTTP request/response eats up another RTT. Thus, roughly, the total response time is two RTTs plus the transmission time at the server of the HTML file.
+- **&quot;Three-way handshake&quot;**
+  - The client sends a small TCP segment to the server, the server acknowledges and responds with a small TCP segment, and, finally, the client acknowledges back to the server.
 
-**Disadvantages:** First, a brand-new connection must be established and maintained for each requested object. For each of these connections, TCP buffers must be allocated and TCP variables must be kept in both the client and server. This can place a significant burden on the Web server, which may be serving requests from hundreds of different clients simultaneously.
+  - The first two parts of the three-way handshake take one RTT. After completing the first two parts of the handshake, the client sends the HTTP request message combined with the third part of the three-way handshake (the acknowledgment) into the TCP connection.
 
-Second, each object suffers a delivery delay of two RTTs—one RTT to establish the TCP connection and one RTT to request and receive an object.
+  - Once the request message arrives at the server, the server sends the HTML file into the TCP connection. This HTTP request/response eats up another RTT. Thus, roughly, the total response time is two RTTs plus the transmission time at the server of the HTML file.
 
-- **●●**** HTTP with Persistent Connections:**
+- **Disadvantages:**
+  - First, a brand-new connection must be established and maintained for each requested object. For each of these connections, TCP buffers must be allocated and TCP variables must be kept in both the client and server. This can place a significant burden on the Web server, which may be serving requests from hundreds of different clients simultaneously.
+  - Second, each object suffers a delivery delay of two RTTs—one RTT to establish the TCP connection and one RTT to request and receive an object.
 
-With HTTP 1.1 persistent connections, the server leaves the TCP connection open after sending a response. Subsequent requests and responses between the same client and server can be sent over the same connection.
+- **HTTP with Persistent Connections:**
 
-The same Web page example given can be sent over a single persistent TCP connection.
+  - With HTTP 1.1 persistent connections, the server leaves the TCP connection open after sending a response. Subsequent requests and responses between the same client and server can be sent over the same connection.
 
-Moreover, multiple Web pages residing on the same server can be sent from the server to the same client over a single persistent TCP connection.
+  - The same Web page example given can be sent over a single persistent TCP connection. Moreover, multiple Web pages residing on the same server can be sent from the server to the same client over a single persistent TCP connection.
 
-These requests for objects can be made back-to-back, without waiting for replies to pending requests (pipelining).
+  - These requests for objects can be made back-to-back, without waiting for replies to pending requests (pipelining).
 
-Typically, the HTTP server closes a connection when it isn&#39;t used for a certain time (a configurable timeout interval).
+  - Typically, the HTTP server closes a connection when it isn&#39;t used for a certain time (a configurable timeout interval).
 
-**2.2.3 HTTP Message Format:**
+### 2.2.3 HTTP Message Format
 
 There are two types of HTTP messages, request messages and response messages.
 
-- **●●**** HTTP Request Message:**
+- **HTTP Request Message:**
 
-        GET /somedir/page.html HTTP/1.1        //called the request line
+![Figure 2.8](images/chapter2/2_8.png)
 
-Host: [www.someschool.edu](http://www.someschool.edu)                //specifies the host on which the object resides
+        GET /somedir/page.html HTTP/1.1    ---> called the request line
+        Host: www.someschool.edu     ---> specifies the host on which the object resides
+        Connection:close          ---> close the connection after sending object
+        User-agent: Mozilla/5.0   ---> specifies the browser type
+        Accept-language: fr       ---> indicates that the user prefers this language
 
-Connection: close                                //close the connection after sending object
+  - Message is written in **ordinary ASCII text** , so that your ordinary computer-literate human being can read it.
 
-User-agent: Mozilla/5.0                        //specifies the browser type
+  - Each line is followed by a carriage return and a line feed. The last line is followed by an additional carriage return and line feed.A request message can have many more lines or as few as one line.
 
-Accept-language: fr                        //indicates that the user prefers this language
+  1. The **request line** has **three fields** : the **method field, the URL field, and the HTTP version field**.
 
-First of all, message is written in **ordinary ASCII text** , so that your ordinary computer-literate human being can read it.
+  2. The method field can take on several different values, including **GET, POST, HEAD, PUT, and DELETE.**
 
-Second, each line is followed by a carriage return and a line feed. The last line is fol-
+  3. The **requested object** is identified in the **URL field.**
 
-lowed by an additional carriage return and line feed.A request message can have many more lines or as few as one line.
+  4. Each header line is used to specify an information needed as shown above.
+  5. The **entity body** is empty with the GET method, but is used with the POST method. An HTTP client often uses the POST method when the user fills out a form. With a POST message, the user is still requesting a Web page from the server, but the specific contents of the Web page depend on what the user entered into the form fields and the entity body contains what the user entered into the form fields. Note, HTML forms often use the GET method and include the inputted data (in the form fields) in the requested URL.
 
-1- The **request line** has **three fields** : the **method field, the URL field, and the HTTP version field**.
+  6. The **HEAD method** is similar to the GET method. When a server receives a request with the HEAD method, it responds with an HTTP message but it leaves out the requested object. Application developers often use the HEAD method for debugging.
 
-2- The method field can take on several different values, including **GET, POST, HEAD, PUT, and DELETE.**
+  7. The **PUT method** is often used in conjunction with Web publishing tools. It allows a user to upload an object to a specific path (directory) on a specific Web server. The PUT method is also used by applications that need to upload objects to Web servers.
 
-3- The **requested object** is identified in the **URL field.**
+  8. The **DELETE method** allows a user, or an application, to delete an object on a Web server.
 
-4- Each header line is used to specify an information needed as shown above.
+- **HTTP Response Message:**
 
+![Figure 2.9](images/chapter2/2_9.png)
 
-5- The **entity body** is empty with the GET method, but is used with the POST method. An HTTP client often uses the POST method when the user fills out a form. With a POST message, the user is still requesting a Web page from the server, but the specific contents of the Web page depend on what the user entered into the form fields and the entity body contains what the user entered into the form fields. Note, HTML forms often use the GET method and include the inputted data (in the form fields) in the requested URL.
+      HTTP/1.1 200 OK
+      Connection: close                      ---> going to close  TCP conn.  after sending message
+      Date: Tue, 18 Aug 2015 15:44:04 GMT          ---> time and date
+      Server: Apache/2.2.3 (CentOS)                ---> indicates the server
+      Last-Modified: Tue, 18 Aug 2015 15:11:03 GMT              ---> time and date of last modified.
+      Content-Length:6821                  ---> number of bytes in the object.
+      Content-Type: text/html              ---> indicates object type
+      (data data data data data ...)
 
-6- The **HEAD method** is similar to the GET method. When a server receives a
+- It has three sections: **an initial status line, six header lines, and then the entity body.** The entity body contains the requested object itself.
 
-request with the HEAD method, it responds with an HTTP message but it leaves out
+- The status line has **three fields** : the **protocol version field, a status code, and a corresponding status message.**
 
-the requested object. Application developers often use the HEAD method for debugging.
+  - The **status code and associated phrase** indicate the result of the request. Some common status codes and associated phrases include:
 
-7- The **PUT method** is often used in conjunction with Web publishing tools. It allows a user to upload an object to a specific path (directory) on a specific Web server. The PUT method is also used by applications that need to upload objects to Web servers.
+    - **200 OK:** Request succeeded and the information is returned in the response.
+    - 301 Moved Permanently: Requested object has been permanently moved; the new URL is specified in Location: header of the response message. The client software will automatically retrieve the new URL.
 
-8- The **DELETE method** allows a user, or an application, to delete an object on a Web server.
+    - **400 Bad Request:** This is a generic error code indicating that the request could not be understood by the server.
+    - **404 Not Found:** The requested document does not exist on this server.
+    - **505 HTTP Version Not Supported:** The requested HTTP protocol version is not supported by the server.
+    - Read more status codes and messages from [here](https://restfulapi.net/http-status-codes/).
 
-- **●●**** HTTP Response Message:**
+  - The **Last-Modified: header** is critical for object caching.
 
-HTTP/1.1 200 OK
+  - The **Date: header** indicates  the time when the server retrieves the object from its file system, inserts the object into the response message, and sends the response message and not the time when the object was created or last modified.
 
-Connection: close                        //going to close  TCP conn.  after sending message
+  - The HTTP specification defines many more header lines that can be inserted by browsers, Web servers, and network cache servers. We have covered only a small number of the totality of header lines.
 
-Date: Tue, 18 Aug 2015 15:44:04 GMT                        //time and date
+### 2.2.4 User-Server Interaction: Cookies
 
-Server: Apache/2.2.3 (CentOS)                                //indicates the server
+As mentioned, HTTP server is stateless. This simplifies server design and has permitted engineers to develop high-performance Web servers that can handle thousands of simultaneous TCP connections.
+However, it is often desirable for a Web site to identify users, either because the server wishes to restrict user access or because it wants to serve content as a function of the user identity.
 
-Last-Modified: Tue, 18 Aug 2015 15:11:03 GMT       //time and date of last modified.
+For these purposes, HTTP uses cookies. **Cookies, allow sites to keep track of users.** Most major commercial Web sites use cookies today.Cookie technology has *four* components:
 
-Content-Length: 6821                                       //number of bytes in the object.
+1. A cookie header line in the HTTP response message
+2. A cookie header line in the HTTP request message.
+3. A cookie file kept on the user&#39;s end system and managed by the user&#39;s browser.
+4. A back-end database at the Web site.
 
-Content-Type: text/html                                     //indicates object type
+Although cookies often simplify the Internet shopping experience for the user,they are controversial because they can also be considered as an invasion of privacy. Using a combination of cookies and user-supplied account information, a Web site can learn a lot about a user and potentially sell this information to a third party.
 
-(data data data data data ...)
+- **Example on Cookies Usage:**
 
-It has three sections: **an initial status line, six header lines, and then the entity body.** The entity body contains the requested object itself.
+  - Suppose Susan, contacts Amazon.com for the first time. Let us suppose that in the past she has already visited the eBay site.
 
-The status line has **three fields** : the **protocol version field, a status code, and a corresponding status message.**
+  - When the request comes into the Amazon Web server, the server creates a unique identification number and creates an entry in its back-end database that is indexed by the identification number.
+  - The Amazon Web server then responds to Susan&#39;s browser, including in the HTTP response a Set-cookie: header, which contains the identification number.
+  - When Susan&#39;s browser receives the HTTP response message, it sees the Set-cookie: header. The browser then appends a line to the special cookie file that it manages. This line includes the hostname of the server and the identification number in the Set-cookie: header.
+  - As Susan continues to browse the Amazon site, each time she requests a Web page, her browser consults her cookie file, extracts her identification number for this site, and puts a cookie header line that includes the identification number in the HTTP request.
+  - the Amazon server is able to track Susan&#39;s activity at the Amazon site. Although the Amazon Web site does not necessarily know Susan&#39;s name, it knows exactly which pages user 1678 visited, in which order, and at what times!
 
-The **status code and associated phrase** indicate the result of the request. Some common status codes and associated phrases include:
+![Figure 2.10](images/chapter2/2_10.png)
 
-- 200 OK: Request succeeded and the information is returned in the response.
-- 301 Moved Permanently: Requested object has been permanently moved; the new URL is specified in Location: header of the response message. The client software will automatically retrieve the new URL.
+From this discussion we see that cookies can be used to identify a user. The first time a user visits a site, the user can provide a user identification. During the subsequent sessions, the browser passes a cookie header to the server, thereby identifying the user to the server. **Cookies can thus be used to create a user session layer on top of stateless HTTP.**
 
-- 400 Bad Request: This is a generic error code indicating that the request could not be understood by the server.
-- 404 Not Found: The requested document does not exist on this server.
-- 505 HTTP Version Not Supported: The requested HTTP protocol version is not supported by the server.
+### 2.2.5 Web Caching
 
-The **Last-Modified: header** is critical for object caching.
-
-The **Date: header** indicates  the time when the server retrieves the object from its file system, inserts the object into the response message, and sends the response message and not the time when the object was created or last modified.
-
-The HTTP specification defines many more header lines that can be inserted by browsers, Web servers, and network cache servers.
-
-We have covered only a small number of the totality of header lines.
-
-**2.2.4 User-Server Interaction: Cookies:**
-
-- **●●** As mentioned, HTTP server is stateless. This simplifies server design and has permitted engineers to develop high-performance Web servers that can handle thousands of simultaneous TCP connections.
-- **●●** However, it is often desirable for a Web site to identify users, either because the server wishes to restrict user access or because it wants to serve content as a function of the user identity.
-- **●●** For these purposes, HTTP uses cookies. **Cookies, allow sites to keep track of users.** Most major commercial Web sites use cookies today.
-- **●●** Cookie technology has four components:
-
-(1) A cookie header line in the HTTP response message.
-
-(2) A cookie header line in the HTTP request message.
-
-(3) A cookie file kept on the user&#39;s end system and managed by the user&#39;s browser.
-
-(4) A back-end database at the Web site.
-
-- **●●** Although cookies often simplify the Internet shopping experience for the user,they are controversial because they can also be considered as an invasion of privacy. Using a combination of cookies and user-supplied account information, a Web site can learn a lot about a user and potentially sell this information to a third party.
-- **●●**** Example on Cookies Usage:**
-
-Suppose Susan, contacts Amazon.com for the first time. Let us suppose that in the past she has already visited the eBay site.
-
-1- When the request comes into the Amazon Web server, the server creates a unique
-
-identification number and creates an entry in its back-end database that is indexed
-
-by the identification number.
-
-2- The Amazon Web server then responds to Susan&#39;s browser, including in the HTTP response a Set-cookie: header, which contains the identification number.
-
-3- When Susan&#39;s browser receives the HTTP response message, it sees the Set-cookie: header. The browser then appends a line to the special cookie file that it manages. This line includes the hostname of the server and the identification number in the Set-cookie: header.
-
-4- As Susan continues to browse the Amazon site, each time she requests a Web page, her browser consults her cookie file, extracts her identification number for this site, and puts a cookie header line that includes the identification number in the HTTP request.
-
-5- the Amazon server is able to track Susan&#39;s activity at the Amazon site. Although the Amazon Web site does not necessarily know Susan&#39;s name, it knows exactly which pages user 1678 visited, in which order, and at what times!
-
-From this discussion we see that cookies can be used to identify a user. The first time a user visits a site, the user can provide a user identification. During the subsequent sessions, the browser passes a cookie header to the server, thereby identifying the user to the server. **Cookies can thus be used to create**
-
-**a user session layer on top of stateless HTTP.**
-
-
-
-
-
-
-**2.2.5 Web Caching:**
-
-A **Web cache—also called a proxy server** —is a network entity that satisfies HTTP
-
-requests on the behalf of an origin Web server. The Web cache has its own disk
-
-storage and keeps copies of recently requested objects in this storage.
-
-- A user&#39;s browser can be configured so that all of the user&#39;s HTTP requests are first directed to the Web cache.
+A **Web cache—also called a proxy server** is a network entity that satisfies HTTP requests on the behalf of an origin Web server. The Web cache has its own disk storage and keeps copies of recently requested objects in this storage. A user&#39;s browser can be configured so that all of the user&#39;s HTTP requests are first directed to the Web cache.
 
 **Example 1 on Web Caching Usage:**
 
-Suppose a browse is requesting the object http://www.someschool.edu/campus.gif.
+- Suppose a browse is requesting the object [http://www.someschool.edu/campus.gif.](http://www.someschool.edu/campus.gif.)
 
-1. The browser establishes a TCP connection to the Web cache and sends an HTTP request for the object to the Web cache.
+    1. The browser establishes a TCP connection to the Web cache and sends an HTTP request for the object to the Web cache.
 
-2. The Web cache checks to see if it has a copy of the object stored locally. If it does, the Web cache returns the object within an HTTP response message to the client browser.
+    2. The Web cache checks to see if it has a copy of the object stored locally. If it does, the Web cache returns the object within an HTTP response message to the client browser.
 
-3. If the Web cache does not have the object, the Web cache opens a TCP connection to the origin server, that is, to www.someschool.edu. The Web cache then sends an HTTP request for the object into the cache-to-server TCP connection. After receiving this request, the origin server sends the object within an HTTP response to the Web cache.
+    3. If the Web cache does not have the object, the Web cache opens a TCP connection to the origin server, that is, to www.someschool.edu. The Web cache then sends an HTTP request for the object into the cache-to-server TCP connection. After receiving this request, the origin server sends the object within an HTTP response to the Web cache.
 
-4. When the Web cache receives the object, it stores a copy in its local storage and
-
-sends a copy, within an HTTP response message, to the client browser (over the
-
-existing TCP connection between the client browser and the Web cache).
+    4. When the Web cache receives the object, it stores a copy in its local storage and sends a copy, within an HTTP response message, to the client browser (over the existing TCP connection between the client browser and the Web cache).
 
 - Note that a cache is both a server and a client at the same time. When it receives requests from and sends responses to a browser, it is a server. When it sends requests to and receives responses from an origin server, it is a client.
+
 - Typically a Web cache is purchased and installed by an ISP,  but this cost is low—many caches use public-domain software that runs on inexpensive PCs.
+
 - Web cache can substantially reduce the response time for a client request, particularly if the bottleneck bandwidth between the client and the origin server is much less than the bottleneck bandwidth between the client and the cache. If there is a high-speed connection between the client and the cache, as there often is, and if the cache has the requested object, then the cache will be able to deliver the object rapidly to the client.
+
 - Web caches can substantially reduce traffic on an institution&#39;s access link to the Internet. By reducing traffic, the institution (for example, a company or a university) does not have to upgrade bandwidth as quickly, thereby reducing costs.
+
 - Web caches can substantially reduce Web traffic in the Internet as a whole, thereby improving performance for all applications.
 
+**Example 2 (Numerical) on Web Caching Usage:**
 
+![Numerical Example](images/chapter2/slides1.png)
 
-**Example 2 on Web Caching Usage:**
+- This figure shows two networks—the institutional network and the rest of the public Internet. The institutional network is a high-speed LAN. A router in the institutional network and a router in the Internet are connected by a 15 Mbps link.
 
-- **●●** This figure shows two networks—the institutional network and the rest of the public Internet. The institutional network is a high-speed LAN. A router in the institutional network and a router in the Internet are connected by a 15 Mbps link.
-- **●●** Suppose that the average object size is 1 Mbits and that the average request rate from the institution&#39;s browsers to the origin servers is 15 requests per second.
-- **●●** HTTP request messages are negligibly small and thus create no traffic in the networks or in the access link
-- **●●** Also Suppose RTT from institutional router to any origin server: 2 sec. (Internet delay)
-- **●●** The total response time = LAN delay + Access delay(that is, the delay between the two routers) + Internet delay.
-- **●●** The traffic intensity on LAN =  (15 requests/sec) \* (1 Mbits/request)/(100 Mbps)  = 0.15
-- **●●** The Traffic intensity on the access link (from the Internet router to institution router) = (15 requests/sec) \* (1 Mbits/request)/(15 Mbps) = 1
-- **●●** The delay on a link becomes very large and grows without bound.Thus, the average response time to satisfy requests is going to be on the order of minutes, if not more, which is unacceptable for the institution&#39;s users. Clearly something must be done.
-- **●●** One possible solution is to increase the access rate from 15 Mbps to, say, 100 Mbps. This will lower the traffic intensity on the access link to 0.15, which translates to negligible delays between the two routers. In this case, the total response time will roughly be two seconds, that is, the Internet delay. But this solution also means that the institution must upgrade its access link from 15 Mbps to 100 Mbps, a costly proposition.
-- **●●** A better solution is Web Caching, Hit rates—the fraction of requests that are satisfied by a cache typically range from 0.2 to 0.7 in practice. let&#39;s suppose that the cache provides a hit rate of 0.4 for this institution. 40 percent of the requests will be satisfied almost immediately, say, within 10 milliseconds, by the cache but the remaining 60 percent of the requests still need to be satisfied by the origin servers.the traffic intensity on the access link is reduced from 1.0 to 0.6. Typically, a traffic intensity less than 0.8 corresponds to a small delay. This delay is negligible compared with the two-second Internet delay. Given these considerations, average delay therefore is 0.4 \* (0.01 seconds) + 0.6 \* (2.01 seconds) which is just slightly greater than 1.2 seconds.   **Better !**
-- **●●**** The Conditional GET:** Although caching can reduce user-perceived response times, it introduces a new problem. the object housed in the Web server may have been modified since the copy was cached at the client.
-- **●●** HTTP has **conditional GET** which isa mechanism that allows a cache to verify that its objects are up to date.
-- **●●** An HTTP request message is a so-called conditional GET message if
+- Suppose that the average object size is 1 Mbits and that the average request rate from the institution&#39;s browsers to the origin servers is 15 requests per second.
 
-(1)The request message uses the **GET method.**
+- HTTP request messages are negligibly small and thus create no traffic in the networks or in the access link
 
-(2) the request message includes an **If-Modified-Since: header line.**
+- Also Suppose RTT from institutional router to any origin server: 2 sec. (Internet delay)
 
-- **●●** Note that the value of the If-modified-since: header line is exactly equal to the value of the Last-Modified: header line that was sent by the server last time this object was requested and saved in the cache.
-- **●●** This conditional GET is telling the server to send the object only if the object has been modified since the specified date.
-- **●●** Suppose the object has not been modified since that last date Then, fourth, the Web server sends a response message to the cache with header : &quot;HTTP/1.1 304 Not Modified&quot; and empty entity body, , which tells the cache that it can go ahead and forward its cached copy of the object to the requesting browser.
+- The total response time = LAN delay + Access delay(that is, the delay between the two routers) + Internet delay.
 
-**2.3 Electronic Mail in the Internet:**
+- The traffic intensity on LAN =  (15 requests/sec) \* (1 Mbits/request)/(100 Mbps)  = 0.15
 
-- **●●** At a high level view, it has three major components: **user agents, mail servers, and the SMTP** ( heart of Internet electronic mail).
+- The Traffic intensity on the access link (from the Internet router to institution router) = (15 requests/sec) \* (1 Mbits/request)/(15 Mbps) = 1
+- The delay on a link becomes very large and grows without bound.Thus, the average response time to satisfy requests is going to be on the order of minutes, if not more, which is unacceptable for the institution&#39;s users. Clearly something must be done.
+
+- One possible solution is to increase the access rate from 15 Mbps to, say, 100 Mbps. This will lower the traffic intensity on the access link to 0.15, which translates to negligible delays between the two routers. In this case, the total response time will roughly be two seconds, that is, the Internet delay. But this solution also means that the institution must upgrade its access link from 15 Mbps to 100 Mbps, a costly proposition.
+
+- A better solution is Web Caching, Hit rates—the fraction of requests that are satisfied by a cache typically range from 0.2 to 0.7 in practice. let&#39;s suppose that the cache provides a hit rate of 0.4 for this institution. 40 percent of the requests will be satisfied almost immediately, say, within 10 milliseconds, by the cache but the remaining 60 percent of the requests still need to be satisfied by the origin servers.the traffic intensity on the access link is reduced from 1.0 to 0.6. Typically, a traffic intensity less than 0.8 corresponds to a small delay. This delay is negligible compared with the two-second Internet delay. Given these considerations, average delay therefore is 0.4 \* (0.01 seconds) + 0.6 \* (2.01 seconds) which is just slightly greater than 1.2 seconds.   **Better !**
+
+**The Conditional GET:**
+
+Although caching can reduce user-perceived response times, it introduces a new problem. the object housed in the Web server may have been modified since the copy was cached at the client. HTTP has **conditional GET** which is a mechanism that allows a cache to verify that its objects are up to date.
+
+- An HTTP request message is a so-called conditional GET message if
+  - The request message uses the **GET method.**
+  - The request message includes an **If-Modified-Since: header line.**
+
+- Note that the value of the If-modified-since: header line is exactly equal to the value of the Last-Modified: header line that was sent by the server last time this object was requested and saved in the cache.
+
+- This conditional GET is telling the server to send the object only if the object has been modified since the specified date.
+
+- Suppose the object has not been modified since that last date Then, fourth, the Web server sends a response message to the cache with header:  **&quot;HTTP/1.1 304 Not Modified&quot;**  and empty entity body, , which tells the cache that it can go ahead and forward its cached copy of the object to the requesting browser.
+
+## 2.3 Electronic Mail in the Internet:
+
+- At a high level view, it has three major components: **user agents, mail servers, and the SMTP** ( heart of Internet electronic mail).
 - **●●** Microsoft Outlook and Apple Mail are examples of **user agents** for e-mail.
 - **●●**** Mail servers** form the core of the email infrastructure. Each recipient, has a mailbox located in one of the mail servers. A mailbox manages and maintains the messages that have been sent to recipient.
 - **●●**** Lifecycle of a message:** A typical message starts its journey in the sender&#39;s user agent, travels to the sender&#39;s mail server, and travels to the recipient&#39;s mail server, where it is deposited in the recipient&#39;s mailbox.
