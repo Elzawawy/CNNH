@@ -1,5 +1,7 @@
 # Chapter 2: Application Layer
 
+![Introduction](images/chapter2/intro.jpg)
+
 **Why start with Application layer ?**
 
 It&#39;s familiar ground. We&#39;re acquainted with many of the applications that rely on the protocols we&#39;ll study. It will give us a good feel for what protocols are all about and will introduce us to many of the same issues that we&#39;ll see again when we study transport, network, and link layer protocols.
@@ -144,6 +146,8 @@ An application-layer protocol defines:
 It is important to *distinguish* between network applications and application layer protocols. An application-layer protocol is only one piece of a network application.
 **Example is the Web itself**, which is a client-server application that allows users to obtain documents from Web servers on demand. The Web application consists of many components including a standard for document formats (that is, HTML),Web browsers (for example, Firefox and Microsoft Internet Explorer), Web servers (for example, Apache and Microsoft servers), and an application-layer protocol.(HTTP)
 
+---------------
+
 ## 2.2 The Web and HTTP
 
 - The Web was the first Internet application that caught the general public&#39;s eye.
@@ -259,6 +263,8 @@ There are two types of HTTP messages, request messages and response messages.
 
   - The HTTP specification defines many more header lines that can be inserted by browsers, Web servers, and network cache servers. We have covered only a small number of the totality of header lines.
 
+---------------
+
 ### 2.2.4 User-Server Interaction: Cookies
 
 As mentioned, HTTP server is stateless. This simplifies server design and has permitted engineers to develop high-performance Web servers that can handle thousands of simultaneous TCP connections.
@@ -287,6 +293,8 @@ Although cookies often simplify the Internet shopping experience for the user,th
 
 From this discussion we see that cookies can be used to identify a user. The first time a user visits a site, the user can provide a user identification. During the subsequent sessions, the browser passes a cookie header to the server, thereby identifying the user to the server. **Cookies can thus be used to create a user session layer on top of stateless HTTP.**
 
+---------------
+
 ### 2.2.5 Web Caching
 
 A **Web cache—also called a proxy server** is a network entity that satisfies HTTP requests on the behalf of an origin Web server. The Web cache has its own disk storage and keeps copies of recently requested objects in this storage. A user&#39;s browser can be configured so that all of the user&#39;s HTTP requests are first directed to the Web cache.
@@ -312,6 +320,8 @@ A **Web cache—also called a proxy server** is a network entity that satisfies 
 - Web caches can substantially reduce traffic on an institution&#39;s access link to the Internet. By reducing traffic, the institution (for example, a company or a university) does not have to upgrade bandwidth as quickly, thereby reducing costs.
 
 - Web caches can substantially reduce Web traffic in the Internet as a whole, thereby improving performance for all applications.
+
+---------------
 
 **Example 2 (Numerical) on Web Caching Usage:**
 
@@ -349,6 +359,8 @@ Although caching can reduce user-perceived response times, it introduces a new p
 - This conditional GET is telling the server to send the object only if the object has been modified since the specified date.
 
 - Suppose the object has not been modified since that last date Then, fourth, the Web server sends a response message to the cache with header:  **&quot;HTTP/1.1 304 Not Modified&quot;**  and empty entity body, , which tells the cache that it can go ahead and forward its cached copy of the object to the requesting browser.
+
+---------------
 
 ## 2.3 Electronic Mail in the Internet
 
@@ -460,6 +472,8 @@ SMTP transfers messages from senders&#39; mail servers to recipients&#39; mail s
 
 - The user agent is an ordinary Web browser, and the user communicates with its remote mailbox via HTTP protocol rather than the POP3 or IMAP protocol.
 
+---------------
+
 ## 2.4 DNS—The Internet&#39;s Directory Service
 
 Just as humans can be identified in many ways, so too can Internet hosts. One **identifier for a host is its hostname** such as www.facebook.com,www.google.com, gaia.cs.umass.edu..However, hostnames **provide little, if any, information about the location** within the Internet of the host.
@@ -502,6 +516,8 @@ So, the main task of the Internet&#39;s domain name system (DNS) is **providing 
   - The **DNS database** contains this set of IP addresses. When clients make a DNS query for a name mapped to a set of addresses, the server responds with the entire set of IP addresses, but**rotates the ordering of the addresses** within each reply.
 
   - Because a client typically sends its HTTP request message to the IP address that is listed first in the set,DNS rotation distributes the traffic among the replicated servers. DNS rotation is also used for email so that multiple mail servers can have the same alias name.
+
+---------------
 
 ### 2.4.2 Overview of How DNS Works
 
@@ -571,6 +587,8 @@ Our example **assumed that the TLD server knows the authoritative DNS server** f
 
 - A local DNS server can also cache the IP addresses of TLD servers, thereby allowing the local DNS server to bypass the root DNS servers in a query chain. In fact, because of caching, root servers are bypassed for all but a very small fraction of DNS queries.
 
+---------------
+
 ## 2.5 Peer-to-Peer File Distribution
 
 With a P2P architecture, there is **minimal (or no) reliance on always-on infrastructure servers.** Instead, pairs of connected hosts, called peers, communicate directly with each other. In this section we consider a very natural P2P application, namely, distributing a large file from a single server to a large number of hosts (called peers).
@@ -619,85 +637,121 @@ Thus, applications with the P2P architecture can be self-scaling which is a dire
 ---------------
 **BitTorrent:**
 
-- **●●** The collection of all peers participating in the distribution of a particular file is called a torrent.
-- **●●** Peers in a torrent download equal-size chunks of the file from one another, with a typical chunk size of 256 kbytes.
-- **●●** When a peer first joins a torrent, it has no chunks. Over time it accumulates more and more chunks. While it downloads chunks it also uploads chunks to other peers.
-- **●●** Once a peer has acquired the entire file, it may (selfishly) leave the torrent, or (altruistically) remain in the torrent and continue to upload chunks to other peers.
--
-**●●** Also, any peer may leave the torrent at any time with only a subset of chunks, and later rejoin the torrent
-- **●●** Each torrent has an infrastructure node called a tracker.
-- **●●** When a peer joins a torrent, it registers itself with the tracker and periodically informs the tracker that it is still in the torrent.
-- **●●** The tracker keeps track of the peers that are participating in the torrent.
-- **●●**** Requesting Chunks:** at any given time, different peers have different subsets of file chunks periodically, Alice asks each peer for list of chunks that they have Alice requests missing chunks from peers, rarest first and then request those rarest chunks first. In this manner, the rarest chunks get more quickly redistributed, aiming to (roughly) equalize the numbers of copies of each chunk in the torrent.
-- **●●**** Sending Chunks: **** TIT-FOR-TAT ****:** Alice sends chunks to those four peers currently sending her chunks at highest rate. Then, Re-evaluate top 4 every 10 secs. And, Every 30 secs: randomly select another peer, say &quot;Bob&quot;, starts sending chunks and &quot;optimistically un-choke&quot; this peer, Because Alice is sending data to Bob, she may become one of Bob&#39;s top four uploaders.
-- **●●** If the two peers are satisfied with the trading, they will put each other in their top four lists and continue trading with each other until one of the peers finds a better partner. The effect is that peers capable of uploading at compatible rates tend to find each other.
-- **●●** The random neighbor selection also allows new peers to get chunks, so that they can have something to trade.
-- **●●** All other neighboring peers besides these five peers (four &quot;top&quot; peers and one probing peer)are &quot;choked,&quot; that is, they do not receive any chunks from Alice.
-- **●●** BitTorrent has a number of interesting mechanisms that are not discussed here, including pieces(mini-chunks), pipelining, random first selection, endgame mode, and anti-snubbing.
+![BitTorrent](images/chapter2/bittorrent.png)
 
-**2.6 Video Streaming and Content Distribution Networks:**
+- The collection of all peers participating in the distribution of a particular file is called a **torrent**.
 
-- Netflix and YouTube services alone consumed a whopping 37% and 16%, respectively, of residential ISP traffic in 2015.
-- These pre-recorded videos are placed on servers, and users send requests to the servers to view the videos on demand.
-- An important characteristic of video is that it can be compressed, thereby trading off video quality with bit rate .The higher the bit rate, the better the image quality.
-- **Huge amount of traffic and storage !** (e.g A single 2 Mbps video with a duration of 67 minutes will consume 1 gigabyte of storage and traffic).
-- In order to provide continuous playout, the network must provide an average throughput to the streaming application that is **at least as large as the bit rate of the compressed video.**
+- Peers in a torrent download equal-size chunks of the file from one another, with a typical chunk size of 256 Kbytes.
 
-**HTTP Streaming :**
+- When a peer first joins a torrent, it has no chunks. Over time it accumulates more and more chunks. While it downloads chunks it also uploads chunks to other peers.
 
-1. **1.** Video is stored at an HTTP server as an ordinary file with a specific URL
-2. **2.** Client establishes a TCP connection with the server and issues an HTTP GET request for that URL.
-3. **3.** The server then sends the video file, within an HTTP response message,as quickly as the underlying network protocols and traffic conditions will allow.
-4. **4.** On the client side, the bytes are collected in a client application buffer.
-5. **5.** Once the number of bytes in this buffer exceeds a predetermined threshold, the client application begins playback.
-6. **6.** The streaming video application periodically grabs video frames from the client application buffer, decompresses the frames, and displays them on the user&#39;s screen.
+- Once a peer has acquired the entire file, it may (selfishly) leave the torrent, or (altruistically) remain in the torrent and continue to upload chunks to other peers. Also, any peer may leave the torrent at any time with only a subset of chunks, and later rejoin the torrent.
 
-**Major shortcoming** : All clients receive the same encoding of the video, despite the large variations in the amount of bandwidth available to a client, both across different clients and also over time for the same client.
+- Each torrent has an infrastructure node called a **tracker.** When a peer joins a torrent, it registers itself with the tracker and periodically informs the tracker that it is still in the torrent. The tracker keeps track of the peers that are participating in the torrent.
 
-**DASH(Dynamic Adaptive Streaming over HTTP) Streaming:**
+- **Requesting Chunks:** at any given time, different peers have different subsets of file chunks periodically, Alice asks each peer for list of chunks that they have Alice requests missing chunks from peers, rarest first and then request those rarest chunks first. In this manner, the rarest chunks get more quickly redistributed, aiming to (roughly) equalize the numbers of copies of each chunk in the torrent.
+
+- **Sending Chunks:** (TIT-FOR-TAT)
+Alice sends chunks to those four peers currently sending her chunks at the highest rate. Then, Re-evaluate top 4 every 10 secs. And, Every 30 secs: randomly select another peer, say &quot;Bob&quot;, starts sending chunks and &quot;optimistically un-choke&quot; this peer, Because Alice is sending data to Bob, she may become one of Bob&#39;s top four uploaders.
+
+- If the two peers are satisfied with the trading, they will put each other in their top four lists and continue trading with each other until one of the peers finds a better partner. The effect is that peers capable of uploading at compatible rates tend to find each other.
+
+- The random neighbor selection also allows new peers to get chunks, so that they can have something to trade.
+
+- All other neighboring peers besides these five peers (four &quot;top&quot; peers and one probing peer)are &quot;**choked**,&quot; that is, they do not receive any chunks from Alice.
+- BitTorrent has a number of *interesting mechanisms* that are not discussed here, including pieces (mini-chunks), pipelining, random first selection, endgame mode, and anti-snubbing.
+
+---------------
+
+## 2.6 Video Streaming and Content Distribution Networks
+
+![Streaming](images/chapter2/streaming.jpg)
+
+Netflix and YouTube services alone consumed a whopping 37% and 16%, respectively, of residential ISP traffic in 2015. These pre-recorded videos are placed on servers, and users send requests to the servers to view the videos on demand.
+An important characteristic of video is that it can be compressed, thereby trading off video quality with bit rate. The higher the bit rate, the better the image quality.
+
+**Huge amount of traffic and storage !** (e.g A single 2 Mbps video with a duration of 67 minutes will consume 1 gigabyte of storage and traffic). In order to provide continuous playout, the network must provide an average throughput to the streaming application that is **at least as large as the bit rate of the compressed video.**
+
+---------------
+
+### HTTP Streaming
+
+1. Video is stored at an HTTP server as an ordinary file with a specific URL.
+
+2. Client establishes a TCP connection with the server and issues an HTTP GET request for that URL.
+
+3. The server then sends the video file, within an HTTP response message,as quickly as the underlying network protocols and traffic conditions will allow.
+
+4. On the client side, the bytes are collected in a client application buffer.
+
+5. Once the number of bytes in this buffer exceeds a predetermined threshold, the client application begins playback.
+
+6. The streaming video application periodically grabs video frames from the client application buffer, decompresses the frames, and displays them on the user&#39;s screen.
+
+- **Major shortcoming** : All clients receive the same encoding of the video, despite the large variations in the amount of bandwidth available to a client, both across different clients and also over time for the same client.
+
+---------------
+
+### DASH(Dynamic Adaptive Streaming over HTTP) Streaming
 
 1. Video is encoded into several different versions, with each version having a different bit rate and, correspondingly, a different quality level.
+
 2. Each video version is stored in the HTTP server, each with a different URL.
+
 3. The HTTP server also has a manifest file, which provides a URL for each version along with its bit rate. The client first requests the manifest file and learns about the various versions.
+
 4. Client dynamically requests chunks of video segments of seconds in length(While downloading chunks, the client also measures the received bandwidth and runs a rate determination algorithm to select the chunk to request next).
+
 5. When the amount of available bandwidth is high, the client naturally selects chunks from a high-rate version; and when the available bandwidth is low, it naturally selects from a low-rate version.
+
 6. The client selects chunks one at a time with HTTP GET request messages
 
-**Advantages:**
+- **Advantages:**
 
-1. DASH allows clients with different Internet access rates to stream in video at different encoding rates.
-2. DASH also allows a client to adapt to the available bandwidth if the available end-to-end bandwidth changes during the session. (switch between qualities)
+    1. DASH allows clients with different Internet access rates to stream in video at different encoding rates.
+    2. DASH also allows a client to adapt to the available bandwidth if the available end-to-end bandwidth changes during the session. (switch between qualities)
 
-**2.6.3 Content Distribution Networks:**
+---------------
 
-- **●●** For an Internet video company, perhaps the most straightforward approach to providing streaming video service is to build a single massive data center, store all of its videos in the data center, and stream the videos directly from the data center to clients worldwide.
+### 2.6.3 Content Distribution Networks
 
-- **●●**** Problems of Approach:**
+- For an Internet video company, perhaps the most straightforward approach to providing streaming video service is to build a single massive data center, store all of its videos in the data center, and stream the videos directly from the data center to clients worldwide.
 
-1. If Client is far from the data center, it will pass through multiple links and may encounter the bottleneck link problem resulting in annoying freezing delays for the user.
-2. A popular video will likely be sent many times over the same communication links. Not only does this waste network bandwidth, but the Internet video company itself will be paying its provider ISP  for sending the same bytes into the Internet over and over again.
-3. A single point of failure—if the data center or its links to the Internet goes down, it would not be able to distribute any video streams.
+- **Problems of Approach:**
 
-- **●●**** Solution: Content Distribution Networks (CDNs):**
+    1. If Client is far from the data center, it will pass through multiple links and may encounter the bottleneck link problem resulting in annoying freezing delays for the user.
 
-1. A CDN manages servers in multiple geographically distributed locations, stores copies of the videos in its servers, and attempts to direct each user request to a CDN location that will provide the best user experience.
-2. The CDN may be a private CDN, that is, owned by the content provider itself or alternatively may be a third-party CDN that distributes content on behalf of multiple content providers
-3. There are two different server placement made: **Enter Deep &amp; Bring Home:**
+    2. A popular video will likely be sent many times over the same communication links. Not only does this waste network bandwidth, but the Internet video company itself will be paying its provider ISP  for sending the same bytes into the Internet over and over again.
 
-Enter Deep:Push CDN servers deep into many access ISPs networks .
+    3. A single point of failure—if the data center or its links to the Internet goes down, it would not be able to distribute any video streams.
 
-Bring Home: Instead of getting inside the access ISPs, these CDNs typically place their clusters in Internet Exchange Points (IXPs).
+- **Solution: Content Distribution Networks (CDNs):**
 
-1. Once its clusters are in place, the CDN replicates content across its clusters.
-2. Many CDNs do not push videos to their clusters but instead use a simple pull strategy: If a client requests a video from a cluster that is not storing the video, then the cluster retrieves the video and stores a copy locally while streaming the video to the client at the same time.
-3. When a user requests content, the CDN must intercept the request so that it can (1) determine a suitable CDN server cluster for that client at that time, and (2) redirect the client&#39;s request to a server in that cluster.
-4. At the core of any CDN deployment is a cluster selection strategy, that is, a mechanism for dynamically directing clients to a server cluster or a data center within the CDN.
-5. One simple strategy is to assign the client to the cluster that is **geographically closest**.Such a solution can work reasonably well for a large fraction of the clients. However, for some clients, the solution may perform poorly, since the geographically closest cluster may not be the closest cluster in terms of the length or number of hops of the network path. Moreover, this simple strategy ignores the variation in delay and available bandwidth over time of Internet paths, always assigning the same cluster to a particular client.
-6. In order to determine the best cluster for a client based on the current traffic conditions, CDNs can instead perform periodic real-time measurements of delay and loss performance between their clusters and clients.
+    1. A CDN manages servers in multiple geographically distributed locations, stores copies of the videos in its servers, and attempts to direct each user request to a CDN location that will provide the best user experience.
 
+    2. The CDN may be a private CDN, that is, owned by the content provider itself or alternatively may be a third-party CDN that distributes content on behalf of multiple content providers.
+
+    3. There are two different server placement made:
+        - **Enter Deep:** Push CDN servers deep into many access ISPs networks .
+        - **Bring Home:** Instead of getting inside the access ISPs, these CDNs typically place their clusters in Internet Exchange Points (IXPs).
+
+    4. Once its clusters are in place, the CDN replicates content across its clusters.
+
+    5. Many CDNs do not push videos to their clusters but instead use a simple pull strategy: If a client requests a video from a cluster that is not storing the video, then the cluster retrieves the video and stores a copy locally while streaming the video to the client at the same time.
+
+    6. When a user requests content, the CDN must intercept the request so that it can (1) determine a suitable CDN server cluster for that client at that time, and (2) redirect the client&#39;s request to a server in that cluster.
+
+    7. At the core of any CDN deployment is a cluster selection strategy, that is, a mechanism for dynamically directing clients to a server cluster or a data center within the CDN.
+
+    8. One simple strategy is to assign the client to the cluster that is **geographically closest**.Such a solution can work reasonably well for a large fraction of the clients. However, for some clients, the solution may perform poorly, since the geographically closest cluster may not be the closest cluster in terms of the length or number of hops of the network path. Moreover, this simple strategy ignores the variation in delay and available bandwidth over time of Internet paths, always assigning the same cluster to a particular client.
+    9. In order to determine the best cluster for a client based on the current traffic conditions, CDNs can instead perform periodic real-time measurements of delay and loss performance between their clusters and clients.
+
+---------------
 **An example on CDN :**
 
 Bob (client) requests video [http://netcinema.com](http://netcinema.com/6Y7B23V)[/](http://netcinema.com/6Y7B23V)[6Y7B23V](http://netcinema.com/6Y7B23V) and video stored in CDN at [http://KingCDN.com/NetC6y&amp;B23V](http://kingcdn.com/NetC6y&amp;B23V)
+
+![Figure 2.25](images/chapter2/2_25.png)
 
 **Steps:**
 
