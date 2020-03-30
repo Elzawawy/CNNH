@@ -350,90 +350,117 @@ Although caching can reduce user-perceived response times, it introduces a new p
 
 - Suppose the object has not been modified since that last date Then, fourth, the Web server sends a response message to the cache with header:  **&quot;HTTP/1.1 304 Not Modified&quot;**  and empty entity body, , which tells the cache that it can go ahead and forward its cached copy of the object to the requesting browser.
 
-## 2.3 Electronic Mail in the Internet:
+## 2.3 Electronic Mail in the Internet
 
 - At a high level view, it has three major components: **user agents, mail servers, and the SMTP** ( heart of Internet electronic mail).
-- **●●** Microsoft Outlook and Apple Mail are examples of **user agents** for e-mail.
-- **●●**** Mail servers** form the core of the email infrastructure. Each recipient, has a mailbox located in one of the mail servers. A mailbox manages and maintains the messages that have been sent to recipient.
-- **●●**** Lifecycle of a message:** A typical message starts its journey in the sender&#39;s user agent, travels to the sender&#39;s mail server, and travels to the recipient&#39;s mail server, where it is deposited in the recipient&#39;s mailbox.
-- **●●** If Alice&#39;s server cannot deliver mail to Bob&#39;s server, Alice&#39;s server holds the message in a message queue and attempts to transfer the message later. Reattempts are often done every 30 minutes or so; if there is no success after several days, the server removes the message and notifies the sender (Alice) with an e-mail message.
-- **●●**** SMTP** is the principal application-layer protocol for Internet electronic mail. It uses the reliable data transfer service of TCP to transfer mail from the sender&#39;s mail server to the recipient&#39;s mail server.
-- **●●**** SMTP has two sides**: a client side, which executes on the sender&#39;s mail server, and a server side, which executes on the recipient&#39;s mail server.
-- **●●**** Both the client and server sides of SMTP run on every mail server**. When a mail server sends mail to other mail servers,it acts as an SMTP client. When a mail server receives mail from other mail servers,it acts as an SMTP server.
 
-**2.3.1 SMTP (Simple Mail Transfer Protocol):**
+- Microsoft Outlook and Apple Mail are examples of **user agents** for e-mail.
 
-- **●●** SMTP transfers messages from senders&#39; mail servers to recipients&#39; mail servers.
-- **●●** It restricts the body of all mail messages to simple 7-bit ASCII.But today, in the multimedia era, the 7-bit ASCII restriction is a bit of a pain—it requires binary multimedia data to be encoded to ASCII before being sent over SMTP; and it requires the corresponding ASCII message to be decoded back to binary after SMTP transport.
-- **●●**** Basic Operation of SMTP:  **
+- **Mail servers** form the core of the email infrastructure. Each recipient, has a mailbox located in one of the mail servers. A mailbox manages and maintains the messages that have been sent to recipient.
 
-**Step 1, Establish Connection:** the client SMTP (running on the sending mail server host) has TCP establish a connection to port 25 at the server SMTP (running on the receiving mail server host). If the server is down, the client tries again later.
+- **Lifecycle of a message:** A typical message starts its journey in the sender&#39;s user agent, travels to the sender&#39;s mail server, and travels to the recipient&#39;s mail server, where it is deposited in the recipient&#39;s mailbox.
 
-**Step 2, Handshaking phase:** SMTP clients and servers introduce themselves before transferring information. The SMTP client indicates the e-mail address of the sender and the e-mail address of the recipient.
+- If Alice&#39;s server cannot deliver mail to Bob&#39;s server, Alice&#39;s server holds the message in a message queue and attempts to transfer the message later. Reattempts are often done every 30 minutes or so; if there is no success after several days, the server removes the message and notifies the sender (Alice) with an e-mail message.
 
-**Step3, Send:** the client sends the message. SMTP can count on the reliable data transfer service of TCP to get the message to the server without errors. The client then repeats this process over the same TCP connection if it has other messages to send to the server; otherwise, it instructs TCP to close the connection.
+- **SMTP** is the principal application-layer protocol for Internet electronic mail. It uses the reliable data transfer service of TCP to transfer mail from the sender&#39;s mail server to the recipient&#39;s mail server. 
+  - **SMTP has two sides**: a client side, which executes on the sender&#39;s mail server, and a server side, which executes on the recipient&#39;s mail server.
+
+  - Both the client and server sides of SMTP run on every mail server. When a mail server sends mail to other mail servers,it acts as an SMTP client. When a mail server receives mail from other mail servers,it acts as an SMTP server.
+
+### 2.3.1 SMTP (Simple Mail Transfer Protocol)
+
+SMTP transfers messages from senders&#39; mail servers to recipients&#39; mail servers. It restricts the body of all mail messages to simple 7-bit ASCII.But today, in the multimedia era, the 7-bit ASCII restriction is a bit of a pain—it requires binary multimedia data to be encoded to ASCII before being sent over SMTP; and it requires the corresponding ASCII message to be decoded back to binary after SMTP transport. **Basic Operation of SMTP:**
+
+- **Step 1, Establish Connection:** the client SMTP (running on the sending mail server host) has TCP establish a connection to port 25 at the server SMTP (running on the receiving mail server host). If the server is down, the client tries again later.
+
+- **Step 2, Handshaking phase:** SMTP clients and servers introduce themselves before transferring information. The SMTP client indicates the e-mail address of the sender and the e-mail address of the recipient.
+
+- **Step3, Send:** the client sends the message. SMTP can count on the reliable data transfer service of TCP to get the message to the server without errors. The client then repeats this process over the same TCP connection if it has other messages to send to the server; otherwise, it instructs TCP to close the connection.
 
 **Example transcript of messages exchanged between an SMTP client (C) and an SMTP server (S):**
+![Transcript Example](images/chapter2/slides2.png)
 
+- Client issued five commands: **HELO, MAIL FROM, RCPT TO, DATA, and QUIT.**
+- A line consisting of a **single period** ,indicates the end of the message to server.
+- The server issues replies to each command,with each reply having a reply code and some (optional) English-language explanation.
+- We mention here that SMTP uses **persistent connections.**
+- SMTP does not normally use intermediate mail servers for sending mail, even when the two mail servers are located at opposite ends of the world.
 
-- **●●** Client issued five commands: **HELO, MAIL FROM, RCPT TO, DATA, and QUIT.**
-- **●●** A line consisting of a **single period** ,indicates the end of the message to server.
-- **●●** The server issues replies to each command,with each reply having a reply code and some (optional) English-language explanation.
-- **●●** We mention here that SMTP uses **persistent connections.**
-- **●●** SMTP does not normally use intermediate mail servers for sending mail, even when the two mail servers are located at opposite ends of the world.
+### 2.3.2 Comparison with HTTP
 
-**2.3.2 Comparison with HTTP:**
+- HTTP transfers files (also called objects) from a Web server to a Web client (typically a browser); SMTP transfers files (that is, e-mail messages) from one mail server to another mail server. Both persistent HTTP and SMTP use persistent connections.
 
-- HTTP transfers files (also called objects) from a Web server to a Web client (typically a browser); SMTP transfers files (that is, e-mail messages) from one mail server to another mail server
-- Both persistent HTTP and SMTP use persistent connections.
 - First difference is First, HTTP is mainly a **pull protocol** —someone loads information on a Web server and users use HTTP to pull the information from the server at their convenience. In particular, the TCP connection is initiated by the machine that wants to receive the file.
-- On the other hand, SMTP is primarily a **push protocol** —the sending mail server pushes the file to the receiving mail server. In particular, the TCP connection is initiated by the machine that wants to send the file.
+
+- On the other hand, SMTP is primarily a **push protocol** the sending mail server pushes the file to the receiving mail server. In particular, the TCP connection is initiated by the machine that wants to send the file.
+
 - A second difference, is that SMTP requires each message, including the body of each message, to be in 7-bit ASCII format.HTTP data does not impose this restriction.
+
 - A third important difference concerns how a document consisting of text and images (along with possibly other media types) is handled. HTTP encapsulates each object in its own HTTP response message. SMTP places all of the message&#39;s objects into one message.
 
-**2.3.3 Mail Message Formats:**
+### 2.3.3 Mail Message Formats
 
 1. A **header** containing peripheral information precedes the body of the message.
+
 2. The **header lines** and the **body of the message are separated by a blank line.**
+
 3. As with HTTP, **each header line contains readable text** , consisting of a keyword followed by a colon followed by a value. Some of the keywords are required and others are optional.
+
 4. Every header **must have a From: header line and a To: header line** ; a header may include a Subject: header line as well as other optional header lines.
 
-**2.3.4 Mail Access Protocols:**
+### 2.3.4 Mail Access Protocols
+
+![Mail Access Protocol](images/chapter2/slides3.png)
 
 - Throughout the discussion, we assumed that Bob reads his mail by logging onto the server host and then executing a mail reader that runs on that host. But today, mail access uses a client-server architecture—the typical user reads email with a client that executes on the user&#39;s end system.
+
 - If Bob&#39;s mail server were to reside on his local PC, then Bob&#39;s PC would have to remain always on, and connected to the Internet, in order to receive new mail, which can arrive at any time. This is impractical for many Internet users.
+
 - Instead, a typical user runs a user agent on the local PC but accesses its mailbox stored on an always-on shared mail server. This mail server is shared with other users and is typically maintained by the user&#39;s ISP.
+
 - There is a **two-step procedure.** SMTP is used to transfer mail from the sender&#39;s mail server to the recipient&#39;s mail server; SMTP is also used to transfer mail from the sender&#39;s user agent to the sender&#39;s mail server.
+
 - Also, **A mail access protocol,** is used to transfer mail from the recipient&#39;s mail server to the recipient&#39;s user agent.
 
-- **POP3:** is an extremely simple mail access protocol.
+---------------
+**POP3:** an extremely simple mail access protocol.
 
-- --POP3 begins when the user agent (the client) opens a TCP connection to the mail server (the server) on port 110.
+- POP3 begins when the user agent (the client) opens a TCP connection to the mail server (the server) on port 110. POP3 progresses through three phases: authorization, transaction, and update.
 
-- **--** POP3 progresses through three phases: authorization, transaction, and update.
-- **--** During the first phase, authorization, the user agent sends a username and a password to authenticate the user.
-- **--** During the second phase, transaction, the user agent retrieves messages; also during this phase, the user agent can mark messages for deletion, remove deletion marks, and obtain mail statistics.
-- **--** The third phase, update, occurs after the client has issued the quit command, ending the POP3 session; at this time, the mail server deletes the messages that were marked for deletion.
--
-**--** In a POP3 transaction, the user agent issues commands, and the server responds to each command with a reply. **There are two possible responses: +OK** (sometimes followed by server-to-client data), used by the server to indicate that the previous command was fine; **and -ERR,** used by the server to indicate that something was wrong with the previous command.
+- During the first phase, authorization, the user agent sends a username and a password to authenticate the user.
 
+- During the second phase, transaction, the user agent retrieves messages; also during this phase, the user agent can mark messages for deletion, remove deletion marks, and obtain mail statistics.
 
+- The third phase, update, occurs after the client has issued the quit command, ending the POP3 session; at this time, the mail server deletes the messages that were marked for deletion.
 
-- **--**** The authorization phase has two principal commands: user \&lt;username\&gt; and pass \&lt;password\&gt;.**
-- **--** A user agent using POP3 can often be configured (by the user) to **&quot;download and delete&quot;** or to **&quot;download and keep&quot;.** The sequence of commands issued by a POP3 user agent depends on which of these two modes the user agent is operating in.
-- **--** In the download-and-delete mode, the user agent will issue **the list, retr, and dele commands.**
-- **--** In the download-and-keep mode, the user agent leaves the messages on the mail server after downloading them. (check on different machines)
-- **--** During a POP3 session between a user agent and the mail server, the POP3 server maintains some state information (user messages have been marked deleted).
-- **--** However, the POP3 server does not carry state information across POP3 sessions. This lack of state information across sessions greatly simplifies the implementation of a POP3 server.
+- In a POP3 transaction, the user agent issues commands, and the server responds to each command with a reply. **There are two possible responses: +OK** (sometimes followed by server-to-client data), used by the server to indicate that the previous command was fine; **and -ERR,** used by the server to indicate that something was wrong with the previous command.
 
-- **●●**** IMAP:** IMAP is a mail access protocol. It has many more features than POP3, but it is also significantly more complex.
-- **●●** The IMAP protocol provides commands to allow users to **create folders** and move messages from one folder to another. Also, commands to search these folders.
-- **●●** Unlike POP3, an IMAP server **maintains user state information** across IMAP sessions
-- **●●** It has commands that permit a user agent to **obtain components of messages** which is useful when there is a low-bandwidth connection.
-- **●●**** Web-Based Email:**More and more users today are sending and accessing their email through their Web browsers.
-- **●●** The user agent is an ordinary Web browser, and the user communicates with its remote mailbox via HTTP protocol rather than the POP3 or IMAP protocol.
+- The authorization phase has two principal commands: user **username** and pass **password**.
 
-**2.4 DNS—The Internet&#39;s Directory Service:**
+- A user agent using POP3 can often be configured (by the user) to **&quot;download and delete&quot;** or to **&quot;download and keep&quot;.** The sequence of commands issued by a POP3 user agent depends on which of these two modes the user agent is operating in.
+
+- In the download-and-delete mode, the user agent will issue **the list, retr, and dele commands.**
+
+- In the download-and-keep mode, the user agent leaves the messages on the mail server after downloading them. (check on different machines)
+
+- During a POP3 session between a user agent and the mail server, the POP3 server maintains some state information (user messages have been marked deleted).
+
+- However, the POP3 server does not carry state information across POP3 sessions. This lack of state information across sessions greatly simplifies the implementation of a POP3 server.
+
+---------------
+**IMAP,** a mail access protocol. It has many more features than POP3, but it is also significantly more complex.
+
+- The IMAP protocol provides commands to allow users to **create folders** and move messages from one folder to another. Also, commands to search these folders.
+
+- Unlike POP3, an IMAP server **maintains user state information** across IMAP sessions
+
+- It has commands that permit a user agent to **obtain components of messages** which is useful when there is a low-bandwidth connection.
+
+- **Web-Based Email:**More and more users today are sending and accessing their email through their Web browsers.
+
+- The user agent is an ordinary Web browser, and the user communicates with its remote mailbox via HTTP protocol rather than the POP3 or IMAP protocol.
+
+## 2.4 DNS—The Internet&#39;s Directory Service
 
 Just as humans can be identified in many ways, so too can Internet hosts. One **identifier for a host is its hostname** such as www.facebook.com,www.google.com, gaia.cs.umass.edu..However, hostnames **provide little, if any, information about the location** within the Internet of the host.
 
@@ -441,20 +468,19 @@ Furthermore, because hostnames can consist of **variable-length alphanumeric** c
 
 An IP address consists of **four bytes** and has a **rigid hierarchical structure** because as we scan the address from left to right, we obtain more and more specific information about where the host is located in the Internet. An IP address looks like 121.7.106.83, where each period separates one of the bytes expressed in decimal notation from 0 to 255. An IP address is hierarchical
 
-**2.4.1 Services Provided by DNS**
+### 2.4.1 Services Provided by DNS
 
 People prefer the more mnemonic hostname identifier, while routers prefer fixed-length, hierarchically structured IP addresses.
-
 So, the main task of the Internet&#39;s domain name system (DNS) is **providing a directory service that translates hostnames to IP addresses.**
 
--  DNS is a distributed database implemented in a hierarchy of DNS servers.
+- DNS is a distributed database implemented in a hierarchy of DNS servers.
 - DNS is an application-layer protocol that allows hosts to query the distributed database.
 - DNS servers are often UNIX machines running the Berkeley Internet Name Domain (BIND) software.
 - DNS protocol runs over UDP and uses port 53.
 - DNS is commonly employed by other application-layer protocols—including HTTP and SMTP to translate user-supplied hostnames to IP addresses.
 - DNS adds an additional delay to the Internet applications that use it.
 
-**Scenario using DNS:  ** _HTTP client requests the URLwww.someschool.edu/index.html._
+**Scenario using DNS: _HTTP client requests the URL www.someschool.edu/index.html._**
 
 1. The same user machine runs the client side of the DNS application.
 
@@ -466,144 +492,131 @@ So, the main task of the Internet&#39;s domain name system (DNS) is **providing 
 
 5. Once the browser receives the IP address from DNS, it can initiate a TCP connection to the HTTP server process located at port 80 at that IP address.
 
-**DNS provides a few other important services in addition to translating host-**
+**DNS provides a few other important services in addition to translating hostnames to IP addresses:**
 
-**names to IP addresses:**
+- **Host aliasing:** A host with a complicated hostname can have one or more alias names. Alias hostnames, when present, are typically more mnemonic than canonical hostnames. DNS can be invoked by an application to obtain this canonical hostname.
 
-- **●●**** Host aliasing:** A host with a complicated hostname can have one or more alias names.
+- **Mail server aliasing:** It is highly desirable that e-mail addresses be mnemonic. DNS can be invoked by a mail application to obtain the canonical hostname for a supplied alias hostname as well as the IP address of the host.
 
-Alias hostnames, when present, are typically more mnemonic than canonical hostnames. DNS can be invoked by an application to obtain this canonical hostname.
+- **Load distribution:** DNS is also used to perform load distribution among replicated servers.For replicated Web servers, a set of IP addresses is thus associated with one canonical hostname.
+  - The **DNS database** contains this set of IP addresses. When clients make a DNS query for a name mapped to a set of addresses, the server responds with the entire set of IP addresses, but**rotates the ordering of the addresses** within each reply.
 
-- **●●**** Mail server aliasing:** It is highly desirable that e-mail addresses be mnemonic.
+  - Because a client typically sends its HTTP request message to the IP address that is listed first in the set,DNS rotation distributes the traffic among the replicated servers. DNS rotation is also used for email so that multiple mail servers can have the same alias name.
 
-DNS can be invoked by a mail application to obtain the canonical hostname for a supplied alias hostname as well as the IP address of the host.
+### 2.4.2 Overview of How DNS Works
 
-- **●●**** Load distribution: **DNS is also used to perform load distribution among replicated servers.For replicated Web servers, a set of IP addresses is thus associated with one canonical hostname. The** DNS database **contains this set of IP addresses. When clients make a DNS query for a name mapped to a set of addresses, the server responds with the entire set of IP addresses, but** rotates the ordering of the addresses **within each reply. Because a client typically sends its HTTP request message to the IP address that is listed first in the set,** DNS rotation distributes the traffic among the replicated servers.**
+- On many UNIX-based machines, gethostbyname() is the function call that an application calls in order to perform the translation.
 
-DNS rotation is also used for email so that multiple mail servers can have the same alias name.
+- From the perspective of the invoking application in the user&#39;s host, DNS is a black box providing a simple, straightforward translation service. But in fact, the black box that implements the service is complex, consisting of a large number of DNS servers distributed around the globe, as well as an application-layer protocol that specifies how the DNS servers and querying hosts communicate.
 
-
-
-**2.4.2 Overview of How DNS Works:**
-
-- **●●** On many UNIX-based machines, gethostbyname() is the function call that an application calls in order to perform the translation
-- **●●** From the perspective of the invoking application in the user&#39;s host, DNS is a black box providing a simple, straightforward translation service. But in fact, the black box that implements the service is complex, consisting of a large number of DNS servers distributed around the globe, as well as an application-layer protocol that specifies how the DNS servers and querying hosts communicate.
-- **●●**** Centralized Design of DNS:**
+---------------
+**Centralized Design of DNS:**
 
 Clients simply direct all queries to the single DNS server, and the DNS server responds directly to the querying clients. Although the simplicity of this design is attractive, a centralized database in a single DNS server simply doesn&#39;t scale.The problems with a centralized design include:
 
-• A single point of failure. If the DNS server crashes, so does the entire Internet!
+- A single point of failure. If the DNS server crashes, so does the entire Internet!
 
-• Traffic volume. A single DNS server would have to handle all DNS queries (for
+- Traffic volume. A single DNS server would have to handle all DNS queries (for all the HTTP requests and e-mail messages generated from hundreds of millions of hosts).
 
-all the HTTP requests and e-mail messages generated from hundreds of millions
+- Distant centralized database. A single DNS server cannot be &quot;close to&quot; all the querying clients.This can lead to significant delays.
 
-of hosts).
+- Maintenance. The single DNS server would have to keep records for all Internet hosts. Not only would this centralized database be huge, but it would have to be updated frequently to account for every new host.
 
-• Distant centralized database. A single DNS server cannot be &quot;close to&quot; all the
+---------------
+**A Distributed, Hierarchical Database:**
 
-querying clients.This can lead to significant delays.
+To deal with the issue of scale, the DNS uses a large number of servers, organized in a hierarchical fashion and distributed around the world.
+**There are three classes of DNS servers—root DNS servers, top-level domain (TLD) DNS servers, and authoritative DNS servers.**
 
-• Maintenance. The single DNS server would have to keep records for all Internet
+![Figure 2.17](images/chapter2/2_17.png)
 
-hosts. Not only would this centralized database be huge, but it would have to be
+- Suppose a DNS client wants to determine the IP address for the hostname www.amazon.com.
 
-updated frequently to account for every new host.
+  - Client first contacts one of the root servers, which returns IP addresses for TLD servers for the top-level domain com.
+  - The client then contacts one of these TLD servers, which returns the IP address of an authoritative server for amazon.com.
+  - Then, the client contacts one of the authoritative servers for amazon.com, which returns the IP address for the hostname www.amazon.com.
 
+- **Root DNS servers:** There are over 400 root name servers scattered all over the world.The full list of root name servers, along with the organizations that manage them and their IP addresses can be found at [Root Servers 2016].
+- **Top-level domain (TLD) servers:** For each of the top-level domains — top-level domains such as com, org, net, edu, and gov, and all of the country top-level domains such as uk, fr, ca, and jp — there is TLD server (or server cluster)
+- **Authoritative DNS servers:**  An organization&#39;s authoritative DNS server houses these DNS records that map the names of those hosts to IP addresses. An organization can choose to implement its own authoritative DNS server to hold these records, or can pay to have these records stored in an authoritative DNS server of some service provider.
 
+- There is another important type of DNS server called **the local DNS server**.
+  - A local DNS server does not strictly belong to the hierarchy of servers.
+  - A host&#39;s local DNS server is typically &quot;close to&quot; the host.
+  - Each ISP has a local DNS server (also called a default name server).
+  - When a host connects to an ISP, the ISP provides the host with the IP addresses of one or more of its local DNS servers.
 
-- **●●**** A Distributed, Hierarchical Database:** To deal with the issue of scale, the DNS uses a large number of servers, organized in a hierarchical fashion and distributed around the world.
-- **●●**** There are three classes of DNS servers—root DNS servers, top-level domain (TLD) DNS servers, and authoritative DNS servers.**
+- When a host makes a DNS query, the query is sent to the local DNS server, which acts a proxy, forwarding the query into the DNS server hierarchy.
 
+![Figure 2.19](images/chapter2/2_19.png)
 
+In order to obtain the **mapping for one hostname, eight DNS messages were sent:** four query messages and four reply messages!
+Our example **assumed that the TLD server knows the authoritative DNS server** for the hostname. In general this not always true. Instead, the TLD server may know only of an intermediate DNS server, which in turn knows the authoritative DNS server for the hostname.
 
-
-
-
-
-
-- **●●** Suppose a DNS client wants to determine the IP address for the hostname www.amazon.com.
-
-- --Client first contacts one of the root servers, which returns IP addresses for TLD servers for the top-level domain com.
-- --The client then contacts one of these TLD servers, which returns the IP address of an authoritative server for amazon.com.
-- --Then, the client contacts one of the authoritative servers for amazon.com, which returns the IP address for the hostname www.amazon.com.
-
-- **●●** _Root DNS servers:_ There are over 400 root name servers scattered all over the world.The full list of root name servers, along with the organizations that manage them and their IP addresses can be found at [Root Servers 2016].
-- **●●** _Top-level domain (TLD) servers:_ For each of the top-level domains — top-level domains such as com, org, net, edu, and gov, and all of the country top-level domains such as uk, fr, ca, and jp — there is TLD server (or server cluster)
-- **●●** _Authoritative DNS servers:_  An organization&#39;s authoritative DNS server houses these DNS records that map the names of those hosts to IP addresses. An organization can choose to implement its own authoritative DNS server to hold these records, or can pay to have these records stored in an authoritative DNS server of some service provider.
-
-- **●●** There is another important type of DNS server called **the local DNS server**. A local DNS server does not strictly belong to the hierarchy of servers. A host&#39;s local DNS server is typically &quot;close to&quot; the host. Each ISP has a local DNS server (also called a default name server). When a host connects to an ISP, the ISP provides the host with the IP addresses of one or more of its local DNS servers.
-- **●●** When a host makes a DNS query, the query is sent to the local DNS server, which acts a proxy, forwarding the query into the DNS server hierarchy.
-
-
-_Note that in this example, in order to obtain the_ **mapping for one**
-
-**hostname, eight DNS messages were sent:** _four query messages and four reply messages!_
-
-_Our previous example_ **assumed that the TLD server knows the authoritative DNS server** _for the hostname. In general this not always true. Instead, the TLD server may know only of an intermediate DNS server, which in turn knows the authoritative DNS server for the hostname._
-
-_The query sent from_ _cse.nyu.edu_ _to_ _dns.nyu.edu_ _is a_ **recursive query** _, since the query asks dns.nyu.edu to obtain the mapping_
-
-_on its behalf. But the subsequent three queries are_ **iterative queries** _since all of the replies are directly returned to_ _dns.nyu.edu._
+- The query sent from *cse.nyu.edu* to *dns.nyu.edu* is a **recursive query** , since the query asks dns.nyu.edu to obtain the mapping on its behalf. But the subsequent three queries are **iterative queries** since all of the replies are directly returned to
+*dns.nyu.edu*.
 
 - In practice, the queries typically follow the pattern in Figure 2.19: The query from the requesting host to the local DNS server is recursive, and the remaining queries are iterative.
 
-- **●●**** DNS Caching:**
+---------------
+**DNS Caching:**
 
-- --DNS extensively exploits DNS caching in order to improve the delay performance and to reduce the number of DNS messages around the Internet.
+- DNS extensively exploits DNS caching in order to improve the delay performance and to reduce the number of DNS messages around the Internet.
 
-- --In a query chain, when a DNS server receives a DNS reply (containing, for example, a mapping from a hostname to an IP address), it can cache the mapping in its local memory.
+- In a query chain, when a DNS server receives a DNS reply (containing, for example, a mapping from a hostname to an IP address), it can cache the mapping in its local memory.
 
-- --If a hostname/IP address pair is cached in a DNS server and another query arrives to the DNS server for the same hostname, the DNS server can provide the desired IP address, even if it is not authoritative for the hostname.
-- --Because hosts and mappings between hostnames and IP addresses are by no means permanent, DNS servers discard cached information after a period of time (often set to two days).
-- --A local DNS server can also cache the IP addresses of TLD servers, thereby allowing the local DNS server to bypass the root DNS servers in a query chain. In fact, because of caching, root servers are bypassed for all but a very small fraction of DNS queries.
+- If a hostname/IP address pair is cached in a DNS server and another query arrives to the DNS server for the same hostname, the DNS server can provide the desired IP address, even if it is not authoritative for the hostname.
 
+- Because hosts and mappings between hostnames and IP addresses are by no means permanent, DNS servers discard cached information after a period of time (often set to two days).
 
+- A local DNS server can also cache the IP addresses of TLD servers, thereby allowing the local DNS server to bypass the root DNS servers in a query chain. In fact, because of caching, root servers are bypassed for all but a very small fraction of DNS queries.
 
-**2.5 Peer-to-Peer File Distribution:**
+## 2.5 Peer-to-Peer File Distribution
 
-With a P2P architecture, there is minimal (or no) reliance on always-on infrastructure servers. Instead, pairs of connected hosts, called peers, communicate directly with each other. In this section we consider a very natural P2P application, namely, distributing a large file from a single server to a large number of hosts (called peers).
+With a P2P architecture, there is **minimal (or no) reliance on always-on infrastructure servers.** Instead, pairs of connected hosts, called peers, communicate directly with each other. In this section we consider a very natural P2P application, namely, distributing a large file from a single server to a large number of hosts (called peers).
 
-- In P2P file distribution, each peer can redistribute any portion of the file it has received to any other peers, thereby assisting the server in the distribution process.
-- As of 2016, the most popular P2P file distribution protocol is BitTorrent.
+In P2P file distribution, each peer can redistribute any portion of the file it has received to any other peers, thereby assisting the server in the distribution process. As of 2016, the most popular P2P file distribution protocol is **BitTorrent.**
 
-**Scalability of P2P Architectures:**
+**Scalability of P2P Architectures:** The server and the peers are connected to the Internet with access links.
 
-- The server and the peers are connected to the Internet with access links.
--  : upload rate of the server&#39;s access link.
-- :  upload rate of the ith peer&#39;s access link.
-- :  download rate of the ith peer&#39;s access link.
-- : download rate of the peer with the lowest download rate.
--  F :   size of the file to be distributed (in bits).
+- u[s] : upload rate of the server&#39;s access link.
+- u[i] :  upload rate of the ith peer&#39;s access link.
+- d[i] :  download rate of the ith peer&#39;s access link.
+- d[min] : download rate of the peer with the lowest download rate.
+- F :   size of the file to be distributed (in bits).
 - N: number of peers that want to obtain a copy of the file.
-- The **distribution time** is the time it takes to get a copy of the file to all N peers.
-- :  distribution time for the client-server architecture.
-- :  distribution time for the peer-to-peer architecture.
+- **Distribution time** : the time it takes to get a copy of the file to all N peers.
+- D[cs] :  distribution time for the client-server architecture.
+- D[P2P] :  distribution time for the peer-to-peer architecture.
 
-Analysis of Client Server Architecture:
+**Analysis of Client Server Architecture:**
 
-- The server must transmit one copy of the file to each of the N peers. Thus the server must transmit NF bits. Since the server&#39;s upload rate is  , the time to distribute the file must be at least NF/
--
-●●The peer with the lowest download rate cannot obtain all F bits of the file in less than F/ seconds. Thus the minimum distribution time is at least F/
+- The server must transmit one copy of the file to each of the N peers. Thus the server must transmit NF bits. Since the server&#39;s upload rate is u[s] , the time to distribute the file must be at least NF/ u[s]
+
+- The peer with the lowest download rate cannot obtain all F bits of the file in less than F/ d[min] seconds. Thus the minimum distribution time is at least F/ d[min]
+![Equation 1](images/chapter2/slides4.png)
 
 - This provides a lower bound on the minimum distribution time for the client-server architecture.
+
 - The distribution time increases linearly with the number of peers N.
 
-Analysis of P2P Architecture:
+**Analysis of P2P Architecture:**
 
 - When a peer receives some file data, it can use its own upload capacity to redistribute the data to other peers.
-- At the beginning of the distribution, only the server has the file. To get this file
-- into the community of peers, the server must send each bit of the file at least once into its access link. Thus, the minimum distribution time is at least F/
-- The peer with the lowest download rate cannot obtain all F bits of the file in less than F/ seconds.
--
-●●Finally, observe that the total upload capacity of the system as a whole is equal to the upload rate of the server plus the upload rates of each of the individual peers. The system must deliver (upload) F bits to each of the N peers, thus delivering a total of NF bits. This cannot be done at a rate faster than
+- At the beginning of the distribution, only the server has the file. To get this file into the community of peers, the server must send each bit of the file at least once into its access link. Thus, the minimum distribution time is at least F/u[s]
 
+- The peer with the lowest download rate cannot obtain all F bits of the file in less than F/d[min] seconds.
 
+- Finally, observe that the total upload capacity of the system as a whole is equal to the upload rate of the server plus the upload rates of each of the individual peers. The system must deliver (upload) F bits to each of the N peers, thus delivering a total of NF bits. This cannot be done at a rate faster than u[total]
+![Equation 2](images/chapter2/slides5.png)
 
-- For the client-server architecture, the distribution time increases linearly and without bound as the number of peers increases.
-- However, for the P2P architecture, the minimal distribution time is not only always less than the distribution time of the client-server architecture; it is also less than one hour for any number of peers N.
-- Thus, applications with the P2P architecture can be self-scaling which is a direct consequence of peers being redistributors as well as consumers of bits.
+---------------
+For the client-server architecture, the distribution time increases linearly and without bound as the number of peers increases.
 
+However, for the P2P architecture, the minimal distribution time is not only always less than the distribution time of the client-server architecture; it is also less than one hour for any number of peers N.
+Thus, applications with the P2P architecture can be self-scaling which is a direct consequence of peers being redistributors as well as consumers of bits.
+
+---------------
 **BitTorrent:**
 
 - **●●** The collection of all peers participating in the distribution of a particular file is called a torrent.
