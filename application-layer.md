@@ -4,13 +4,14 @@
 
 It&#39;s familiar ground. We&#39;re acquainted with many of the applications that rely on the protocols we&#39;ll study. It will give us a good feel for what protocols are all about and will introduce us to many of the same issues that we&#39;ll see again when we study transport, network, and link layer protocols.
 
-**2.1 Principles of Network Applications:**
+## 2.1 Principles of Network Applications
 
 - At the core of network application development is writing programs that run on different end systems and communicate with each other over the network.
+
 - Thus, when developing your new application, you need to write software that will run on multiple end systems.
 - This basic design - namely, confining application software to the end systems - has facilitated the rapid development and deployment of a vast array of network applications.
 
-**2.1.1 Network Application Architectures:**
+### 2.1.1 Network Application Architectures
 
 - Before diving into software coding, you should have a broad architectural plan for your application.
 - An application&#39;s architecture is distinctly different from the network architecture.
@@ -18,31 +19,31 @@ It&#39;s familiar ground. We&#39;re acquainted with many of the applications tha
 - **Two predominant architectural paradigms** : The client-server architecture or The peer-to-peer (P2P) architecture.
 - **In a Client-server architecture** , there is an always-on host, called the server, which services requests from many other hosts, called clients.
 
-Note that with the client-server architecture, **clients do not directly communicate with each other** (for example, in the Web application, two browsers do not directly communicate.)
+  - Note that with the client-server architecture, **clients do not directly communicate with each other** (for example, in the Web application, two browsers do not directly communicate.)
 
-Another characteristic of the client-server architecture is that **the server has a fixed, well-known address, called an IP address** such that a client can always contact the server by sending a packet to the server&#39;s IP address.
+  - Another characteristic of the client-server architecture is that **the server has a fixed, well-known address, called an IP address** such that a client can always contact the server by sending a packet to the server&#39;s IP address.
 
-**Applications using this architecture** : The Web, FTP, Telnet, and e-mail.
+  - **Applications using this architecture** : The Web, FTP, Telnet, and e-mail.
 
-Often in a client-server application, a single-server host is incapable of keeping up with all the requests from clients.For this reason, a **data center,** housing a large number of hosts, is often used to create a powerful virtual server.A data center can have hundreds of thousands of servers, which must be powered and maintained. Additionally, the service providers must pay recurring interconnection and bandwidth costs for sending data from their data centers.
+  - Often in a client-server application, a single-server host is incapable of keeping up with all the requests from clients.For this reason, a **data center,** housing a large number of hosts, is often used to create a powerful virtual server.A data center can have hundreds of thousands of servers, which must be powered and maintained. Additionally, the service providers must pay recurring interconnection and bandwidth costs for sending data from their data centers.
 
 - **In a P2P architecture** , there is minimal (or no) reliance on dedicated servers in data centers.
 
-Instead the application exploits direct communication between pairs of intermittently connected hosts, called peers. The peers are not owned by the service provider, but are instead desktops and laptops controlled by users, with most of the peers residing in homes, universities, and offices.
+  - Instead the application exploits direct communication between pairs of intermittently connected hosts, called peers. The peers are not owned by the service provider, but are instead desktops and laptops controlled by users, with most of the peers residing in homes, universities, and offices.
 
-Because the peers communicate without passing through a dedicated server, the architecture is called **peer-to-peer.**
+  - Because the peers communicate without passing through a dedicated server, the architecture is called **peer-to-peer.**
 
-**Applications using this architecture** : BitTorrent, Xunlei,Skype
+  - **Applications using this architecture** : BitTorrent, Xunlei,Skype
 
-One of the most compelling features of P2P architectures is their **self-scalability.** (For example, in a P2P file-sharing application, although each peer generates workload by requesting files, each peer also adds service capacity to the system by distributing files to other peers.)
+  - One of the most compelling features of P2P architectures is their **self-scalability.** (For example, in a P2P file-sharing application, although each peer generates workload by requesting files, each peer also adds service capacity to the system by distributing files to other peers.)
 
-P2P architectures are also **cost effective** , since they normally don&#39;t require significant server infrastructure and server bandwidth.
+  - P2P architectures are also **cost effective** , since they normally don&#39;t require significant server infrastructure and server bandwidth.
 
-However, P2P applications **face challenges of security, performance, and reliability due to their highly decentralized structure.**
+  - However, P2P applications **face challenges of security, performance, and reliability due to their highly decentralized structure.**
 
 - Some applications have **hybrid architectures** , combining both client-server and P2P elements. For example, for many instant messaging applications, servers are used to track the IP addresses of users, but user-to-user messages are sent directly between user hosts (without passing through intermediate servers)
 
-**2.1.2 Processes Communicating:**
+### 2.1.2 Processes Communicating
 
 - Before building your network application, you also need a basic understanding of how the programs, running in multiple end systems, communicate with each other.
 - It is not actually programs but **processes** that communicate. A process can be thought of as a program that is running within an end system. When processes are running on the same end system, they can communicate with each other with interprocess communication, using rules that are governed by the end system&#39;s operating system.
@@ -55,50 +56,55 @@ However, P2P applications **face challenges of security, performance, and reliab
 - The application developer has control of everything on the application-layer side of the socket but has little control of the transport-layer side of the socket. The only control that the application developer has on the transport-layer side is (1) the choice of transport protocol and (2) perhaps the ability to fix a few transport-layer parameters such as maximum buffer and maximum segment sizes.
 - In order for a process running on one host to send packets to a process running on another host, the receiving process needs to have an address.
 - To identify the receiving process, two pieces of information need to be specified: (1) **the address of the host** and (2) **an identifier that specifies the receiving process (more specifically, the receiving socket) running in the destination host.**
+
 - In the Internet, the host is identified by its **IP address.** The second information is needed because the host maybe running many network applications. A **destination port number** serves this purpose. Popular applications have been assigned specific port numbers. For example, a Web server is identified by port number 80. A mail server process (using the SMTP protocol) is identified by port number 25.
 
-**2.1.3 Transport Services Available to Applications:**
+### 2.1.3 Transport Services Available to Applications
 
-- **●●** The application at the sending side pushes messages through the socket. At the other side of the socket, the transport-layer protocol has the responsibility of getting the messages to the socket of the receiving process.
-- **●●** When you develop an application, you must choose one of the available transport layer protocols with the services that best match your application&#39;s needs.
-- **●●** What are the services that a transport-layer protocol can offer to applications invoking it? **Reliable data transfer, Throughput, Timing, and Security.**
-- **●●**** Reliable Data Transfe ****r:** Aguarantee that the data sent by one end of the application is delivered correctly and completely to the other end of the application. Because packets can get lost within a computer network and because data loss can have devastating consequences for some applications.
+- The application at the sending side pushes messages through the socket. At the other side of the socket, the transport-layer protocol has the responsibility of getting the messages to the socket of the receiving process.
+- When you develop an application, you must choose one of the available transport layer protocols with the services that best match your application&#39;s needs.
+- What are the services that a transport-layer protocol can offer to applications invoking it? **Reliable data transfer, Throughput, Timing, and Security.**
 
-If a protocol provides such a guaranteed data delivery service, it is said to provide reliable data transfer.
+- **Reliable Data Transfer**
+  - A guarantee that the data sent by one end of the application is delivered correctly and completely to the other end of the application. Because packets can get lost within a computer network and because data loss can have devastating consequences for some applications.
 
-**Process-to-process reliable data transfer** means that when a transport protocol provides this service, the sending process can just pass its data into the socket and know with complete confidence that the data will arrive without errors at the receiving process
+  - If a protocol provides such a guaranteed data delivery service, it is said to provide reliable data transfer.
 
-When a transport-layer protocol doesn&#39;t provide reliable data transfer, some of the data sent by the sending process may never arrive at the receiving process. This may be **acceptable for loss-tolerant applications** , most notably multimedia applications such as conversational audio/video that can tolerate some amount of data loss (In these multimedia applications, lost data might result in a small glitch in the audio/video—not a crucial impairment).
+  - **Process-to-process reliable data transfer** means that when a transport protocol provides this service, the sending process can just pass its data into the socket and know with complete confidence that the data will arrive without errors at the receiving process
 
-- **Throughput**** :** is the rate at which the sending process can deliver bits to the receiving process.
+  - When a transport-layer protocol doesn&#39;t provide reliable data transfer, some of the data sent by the sending process may never arrive at the receiving process. This may be **acceptable for loss-tolerant applications** , most notably multimedia applications such as conversational audio/video that can tolerate some amount of data loss (In these multimedia applications, lost data might result in a small glitch in the audio/video—not a crucial impairment).
 
-Because other sessions will be sharing the bandwidth along the network path, and because these other sessions will be coming and going, the available throughput can fluctuate with time.Thus, **guaranteed available throughput at some specified rate** is another service that can be provided by transport protocol (application could request a guaranteed throughput of r bits/sec, and the transport protocol would then ensure that the available throughput is always at least r bits/sec).
+- **Throughput**
+  - It is the rate at which the sending process can deliver bits to the receiving process.
 
-Applications that have throughput requirements are **bandwidth-sensitive applications.** Many current multimedia applications are bandwidth sensitive, although some multimedia applications may use adaptive coding techniques to encode digitized voice or video at a rate that matches the currently available throughput.
+  - Because other sessions will be sharing the bandwidth along the network path, and because these other sessions will be coming and going, the available throughput can fluctuate with time.Thus, **guaranteed available throughput at some specified rate** is another service that can be provided by transport protocol (application could request a guaranteed throughput of r bits/sec, and the transport protocol would then ensure that the available throughput is always at least r bits/sec).
 
-On the other hand, **elastic applications** can make use of as much, or as little, throughput as happens to be available. Electronic mail, file transfer, and Web transfers are all elastic applications. Of course, the more throughput, the better.
+  - Applications that have throughput requirements are **bandwidth-sensitive applications.** Many current multimedia applications are bandwidth sensitive, although some multimedia applications may use adaptive coding techniques to encode digitized voice or video at a rate that matches the currently available throughput.
 
-- **●●**** Timing:** A transport-layer protocol can also provide timing guarantees, timing guarantees can come in many shapes and forms.
+  - On the other hand, **elastic applications** can make use of as much, or as little, throughput as happens to be available. Electronic mail, file transfer, and Web transfers are all elastic applications. Of course, the more throughput, the better.
 
-**Example:** Every bit that the sender pumps into the socket arrives at the receiver&#39;s socket no more than 100 msec later.
+- **Timing**
+  - A transport-layer protocol can also provide timing guarantees, timing guarantees can come in many shapes and forms.
 
-This is important for **interactive real-time applications**. Long delays in Internet telephony, for example, tend to result in unnatural pauses in the conversation; in a multiplayer game or virtual interactive environment, a long delay between taking an action and seeing the response from the environment makes the application feel less realistic.
+  - **Example:** Every bit that the sender pumps into the socket arrives at the receiver&#39;s socket no more than 100 msec later.
 
-For **non-real-time applications** , lower delay is always preferable to higher delay, but no tight constraint is placed on the end-to-end delays.
+  - This is important for **interactive real-time applications**. Long delays in Internet telephony, for example, tend to result in unnatural pauses in the conversation; in a multiplayer game or virtual interactive environment, a long delay between taking an action and seeing the response from the environment makes the application feel less realistic.
 
-- **●●**** Security:** a transport protocol can provide an application with one or more security services.
+  - For **non-real-time applications** , lower delay is always preferable to higher delay, but no tight constraint is placed on the end-to-end delays.
 
-**Example:** in the sending host, a transport protocol can encrypt all data transmitted by the sending process, and in the receiving host, the transport-layer protocol can decrypt the data before delivering the data to the receiving process.
+- **Security**
+  - A transport protocol can provide an application with one or more security services.
 
-Such Service would provide confidentiality between the two processes, even if the data is somehow observed between sending and receiving processes.
+  - **Example:** in the sending host, a transport protocol can encrypt all data transmitted by the sending process, and in the receiving host, the transport-layer protocol can decrypt the data before delivering the data to the receiving process.
 
-**Another Examples** : Data integrity and end-point authentication.
+  - Such Service would provide confidentiality between the two processes, even if the data is somehow observed between sending and receiving processes.
+  - **Another Examples** : Data integrity and end-point authentication.
 
-**2.1.4 Transport Services Provided by the Internet:**
+### 2.1.4 Transport Services Provided by the Internet
 
 The Internet (and, more generally, TCP/IP networks) makes two transport protocols available to applications, UDP and TCP. When you (as an application developer) create a new network application for the Internet, one of the first decisions you have to make is whether to use UDP or TCP. Each of these protocols offers a different set of services to the invoking applications.
 
-- **●●**** TCP Services:** The TCP service model includes a connection-oriented service and a reliable data transfer service.
+- **TCP Services:** The TCP service model includes a connection-oriented service and a reliable data transfer service.
 
 1. 1) **Connection-oriented service** : TCP has the client and server exchange transport layer control information with each other before the application-level messages begin to flow. This so-called handshaking procedure alerts the client and server, allowing them to prepare for an onslaught of packets. After the handshaking phase, a TCP connection is said to exist between the sockets of the two processes. The connection is a full-duplex connection in that the two processes can send messages to each other over the connection at the same time. When the application finishes sending messages, it must tear down the connection.
 2. 2) **Reliable data transfer service:** The communicating processes can rely on TCP to deliver all data sent without error (no missing or duplicate bytes) and in the proper order.
