@@ -106,29 +106,32 @@ The Internet (and, more generally, TCP/IP networks) makes two transport protocol
 
 - **TCP Services:** The TCP service model includes a connection-oriented service and a reliable data transfer service.
 
-1. 1) **Connection-oriented service** : TCP has the client and server exchange transport layer control information with each other before the application-level messages begin to flow. This so-called handshaking procedure alerts the client and server, allowing them to prepare for an onslaught of packets. After the handshaking phase, a TCP connection is said to exist between the sockets of the two processes. The connection is a full-duplex connection in that the two processes can send messages to each other over the connection at the same time. When the application finishes sending messages, it must tear down the connection.
-2. 2) **Reliable data transfer service:** The communicating processes can rely on TCP to deliver all data sent without error (no missing or duplicate bytes) and in the proper order.
-3. 3)TCP also includes a **congestion-control mechanism** , a service for the general welfare of the Internet rather than for the direct benefit of the communicating processes. The TCP congestion-control mechanism controls the flow of a sending process (client or server) when the network is congested between sender and receiver. It also attempts to limit each TCP connection to its **fair share of network bandwidth.**
+  1. **Connection-oriented service** : TCP has the client and server exchange transport layer control information with each other before the application-level messages begin to flow. This so-called handshaking procedure alerts the client and server, allowing them to prepare for an onslaught of packets. After the handshaking phase, a TCP connection is said to exist between the sockets of the two processes. The connection is a full-duplex connection in that the two processes can send messages to each other over the connection at the same time. When the application finishes sending messages, it must tear down the connection.
+  2. **Reliable data transfer service:** The communicating processes can rely on TCP to deliver all data sent without error (no missing or duplicate bytes) and in the proper order.
 
-- **●●**** UDP Services:** UDP is a no-frills, lightweight transport protocol, providing minimal services.
+  3. TCP also includes a **congestion-control mechanism** , a service for the general welfare of the Internet rather than for the direct benefit of the communicating processes. The TCP congestion-control mechanism controls the flow of a sending process (client or server) when the network is congested between sender and receiver. It also attempts to limit each TCP connection to its **fair share of network bandwidth.**
 
-UDP is **connectionless** , so there is no handshaking before the two processes start to communicate.
+- **UDP Services:** UDP is a no-frills, lightweight transport protocol, providing minimal services.
 
-UDP provides an **unreliable data transfer service** —that is, when a process sends a message into a UDP socket, UDP provides no guarantee that the message will ever reach the receiving process. Furthermore, messages that do arrive at the receiving process may arrive out of order.
+  - UDP is **connectionless** , so there is no handshaking before the two processes start to communicate.
 
-UDP does not include a congestion-control mechanism, so sending side of UDP can pump data into the layer below (the network layer) at any rate it pleases.
+  - UDP provides an **unreliable data transfer service** —that is, when a process sends a message into a UDP socket, UDP provides no guarantee that the message will ever reach the receiving process. Furthermore, messages that do arrive at the receiving process may arrive out of order.
 
-- **●●**** Services Not Provided by Internet Transport Protocols:**
+  - UDP does not include a congestion-control mechanism, so sending side of UDP can pump data into the layer below (the network layer) at any rate it pleases.
 
-TCP provides reliable end-to-end data transfer. Also, TCP can be easily enhanced at the application layer with SSL to provide security services.
+- **Services Not Provided by Internet Transport Protocols:**
 
-Throughput or timing guarantees services not provided by today&#39;s Internet transport protocols.
+  - TCP provides reliable end-to-end data transfer. Also, TCP can be easily enhanced at the application layer with SSL to provide security services.
 
-Time-sensitive applications such as Internet telephony often work fairly well because they have been designed to cope, to the greatest extent possible, with this lack of guarantee.Nevertheless, clever design has its limitations when delay is excessive, or the end-to-end throughput is limited. In summary, today&#39;s Internet can often provide satisfactory service to time-sensitive applications, but it cannot provide any timing or throughput guarantees.
+  - Throughput or timing guarantees services not provided by today&#39;s Internet transport protocols. Time-sensitive applications such as Internet telephony often work fairly well because they have been designed to cope, to the greatest extent possible, with this lack of guarantee.Nevertheless, clever design has its limitations when delay is excessive, or the end-to-end throughput is limited. In summary, today&#39;s Internet can often provide satisfactory service to time-sensitive applications, but it cannot provide any timing or throughput guarantees.
 
-Developers of Internet telephony applications usually prefer to run their applications over UDP, thereby circumventing TCP&#39;s congestion control mechanism and packet overheads. But because many firewalls are configured to block (most types of) UDP traffic, Internet telephony applications often are designed to use TCP as a backup if UDP communication fails.
+  - Developers of Internet telephony applications usually prefer to run their applications over UDP, thereby circumventing TCP&#39;s congestion control mechanism and packet overheads. But because many firewalls are configured to block (most types of) UDP traffic, Internet telephony applications often are designed to use TCP as a backup if UDP communication fails.
 
-**2.1.5 Application-Layer Protocols:**
+- **Some popular applications, their requirements, their application layer protocols and underlying transport protocols**
+![Figure 2.4](images/chapter2/2_4.png)
+![Figure 2.5](images/chapter2/2_5.png)
+
+### 2.1.5 Application-Layer Protocols
 
 An application-layer protocol defines:
 
@@ -137,11 +140,10 @@ An application-layer protocol defines:
 3. The semantics of the fields, that is, the meaning of the information in the fields.
 4. Rules for determining when and how a process sends messages and responds to messages.
 
-It is important to distinguish between network applications and application layer protocols. An application-layer protocol is only one piece of a network application.
+It is important to *distinguish* between network applications and application layer protocols. An application-layer protocol is only one piece of a network application.
+**Example is the Web itself**, which is a client-server application that allows users to obtain documents from Web servers on demand. The Web application consists of many components including a standard for document formats (that is, HTML),Web browsers (for example, Firefox and Microsoft Internet Explorer), Web servers (for example, Apache and Microsoft servers), and an application-layer protocol.(HTTP)
 
-**Example:** The Web is a client-server application that allows users to obtain documents from Web servers on demand. The Web application consists of many components including a standard for document formats (that is, HTML),Web browsers (for example, Firefox and Microsoft Internet Explorer), Web servers (for example, Apache and Microsoft servers), and an application-layer protocol.(HTTP)
-
-**2.2 The Web and HTTP:**
+## 2.2 The Web and HTTP
 
 - The Web was the first Internet application that caught the general public&#39;s eye.
 - The Web operates on demand (Users receive what they want, when they want it).
