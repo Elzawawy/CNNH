@@ -1,111 +1,59 @@
-***Chapter 3: Transport Layer***
+# Chapter 3: Transport Layer
 
 “A central piece of the layered network architecture. It has the
 critical role of providing communication services directly to the
 application processes running on different hosts.”
 
-***3.1 Introduction and Transport-Layer Services:***
+<p align='center'><img src="./images/chapter3/cover.jpg"></p>
 
--   A transport-layer protocol provides for logical communication (as if
-    > they are directly connected) between application processes running
-    > on different hosts.
+## 3.1 Introduction and Transport-Layer Services
 
--   Transport-layer protocols are implemented in the end systems but not
-    > in network routers.
+- A transport-layer protocol provides for logical communication (as if they are directly connected) between application processes running on different hosts.
 
--   On the sending side, the transport layer converts the
-    > application-layer messages it receives from a sending application
-    > process into transport-layer packets, known as **transport-layer
-    > segments** by **breaking** the application messages into smaller
-    > chunks and **adding a transport-layer header** to each chunk to
-    > create the transport-layer segment.
+- Transport-layer protocols are implemented in the end systems but not in network routers.
 
--   The transport layer then passes the segment to the **network layer**
-    > at the sending end system, where the segment is encapsulated
-    > within a **network-layer packet (datagram)** and sent to the
-    > destination.
+- On the sending side, the transport layer converts the application-layer messages it receives from a sending application process into transport-layer packets, known as **transport-layer segments** by **breaking** the application messages into smaller chunks and **adding a transport-layer header** to each chunk to create the transport-layer segment.
 
--   On the receiving side, the network layer extracts the
-    > transport-layer segment from the datagram and passes the segment
-    > up to the transport layer. The transport layer then processes the
-    > received segment, making the data in the segment available to the
-    > receiving application.
+- The transport layer then passes the segment to the **network layer** at the sending end system, where the segment is encapsulated within a **network-layer packet (datagram)** and sent to the destination.
 
--   The Internet has two transport layer protocols: **TCP and UDP.**
+- On the receiving side, the network layer extracts the transport-layer segment from the datagram and passes the segment up to the transport layer. The transport layer then processes the received segment, making the data in the segment available to the receiving application.
 
-***3.1.1 Relationship Between Transport and Network Layers:***
+- The Internet has two transport layer protocols: **TCP and UDP.**
 
--   **Distinction between Transport and Network layer Protocols** : A
-    > network-layer protocol provides logical communication **between
-    > hosts**, and transport-layer protocol as said above provides the
-    > logical communication **between processes** running on different
-    > hosts.
+### 3.1.1 Relationship Between Transport and Network Layers
 
--   Intermediate routers neither act on, nor recognize, any information
-    > that the transport layer may have added to the application
-    > messages. And transport-layer protocol doesn’t have any say about
-    > how the messages are moved within the network core.
+- **Distinction between Transport and Network layer Protocols** : A network-layer protocol provides logical communication **between hosts**, and transport-layer protocol as said above provides the logical communication **between processes** running on different hosts.
 
--   The services that a transport protocol can provide are often
-    > **constrained by the service model of the underlying network-layer
-    > protocol.** If the network-layer protocol cannot provide delay or
-    > bandwidth guarantees for transport-layer segments sent between
-    > hosts, then transport-layer protocol cannot provide delay or
-    > bandwidth guarantees for application messages sent between
-    > processes. **Nevertheless, certain services can be offered by a
-    > transport protocol even when the underlying network protocol
-    > doesn’t offer the corresponding service at the network layer.
-    > (reliable data transfer - security and encryption)**
+- Intermediate routers neither act on, nor recognize, any information that the transport layer may have added to the application messages. And transport-layer protocol doesn’t have any say about how the messages are moved within the network core.
 
-***3.1.2 Overview of the Transport Layer in the Internet:***
+- The services that a transport protocol can provide are often **constrained by the service model of the underlying network-layer protocol.**
+  - If the *network-layer protocol cannot provide* delay or bandwidth guarantees for transport-layer segments sent between hosts, then *transport-layer protocol cannot provide* delay or bandwidth guarantees for application messages sent between processes.
+  - Nevertheless, certain services can be offered *by a transport protocol* even when the underlying network protocol doesn’t offer the corresponding service at the network layer.(reliable data transfer - security and encryption)
 
--   **UDP (User Datagram Protocol),** which provides an unreliable,
-    > connectionless service to the invoking application.
+### 3.1.2 Overview of the Transport Layer in the Internet
 
--   **TCP (Transmission Control Protocol)**, which provides a reliable,
-    > connection-oriented service to the invoking application.
+- **UDP (User Datagram Protocol),** which provides an unreliable,connection-less service to the invoking application.
 
--   The application developer must specify one of these two transport
-    > protocols.
+- **TCP (Transmission Control Protocol)**, which provides a reliable, connection-oriented service to the invoking application.
 
--   The Internet’s network-layer protocol—IP, for Internet Protocol.
+- The **application developer** must specify one of these two transport protocols.
 
--   The IP service model is a **best-effort delivery service**. This
-    > means that IP makes its “best effort” to deliver segments between
-    > communicating hosts, **but it makes no guarantees** ( such as
-    > guarantees about segment delivery, the orderly delivery of
-    > segments,the integrity of the data in segments).
+- The Internet’s network-layer protocol is **IP**, standing for Internet Protocol.
+  - The IP service model is a **best-effort delivery service**. This means that IP makes its “best effort” to deliver segments between communicating hosts, **but it makes no guarantees** ( such as guarantees about segment delivery, the orderly delivery of segments,the integrity of the data in segments).
+  - **IP is said to be an unreliable service.**
+  - Keep in mind every host has at least one network-layer address (**IP address**).
 
--   **IP is said to be an unreliable service.**
+- Main responsibility of Transport-layer protocol is **extending host-to-host delivery to process-to-process delivery** which is called transport-layer **multiplexing and de-multiplexing.**
 
--   Keep in mind every host has at least one network-layer address (
-    > **IP address**).
+- UDP and TCP also provide **integrity checking** by including error detection fields in their segments’ headers.
 
--   Main responsibility of Transport-layer protocol is extending
-    > host-to-host delivery to process-to-process delivery which is
-    > called transport-layer **multiplexing and demultiplexing.**
+- An application using UDP transport can send at any rate it pleases, for as long as it pleases.UDP only provides the above two minimal services, **UDP is an unreliable service**.
 
--   UDP and TCP also provide **integrity checking** by including error
-    > detection fields in their segments’ headers.
+- TCP, on the other hand, offers several additional services to applications. It provides **reliable data transfer.**TCP ensures that data is delivered from sending process to receiving process, correctly and in order. TCP thus converts IP’s unreliable service between end systems into a reliable data transport service between processes.
 
--   An application using UDP transport can send at any rate it pleases,
-    > for as long as it pleases.UDP only provides the above two minimal
-    > services, **UDP is an unreliable service**.
+- TCP also provides **congestion control.** TCP congestion control prevents any one TCP connection from swamping the links and routers between communicating hosts with an excessive amount of traffic. TCP tries to give connections in a congested link an equal share of the link bandwidth.
 
--   TCP, on the other hand, offers several additional services to
-    > applications. It provides **reliable data transfer.**TCP ensures
-    > that data is delivered from sending process to receiving process,
-    > correctly and in order. TCP thus converts IP’s unreliable service
-    > between end systems into a reliable data transport service between
-    > processes.
-
--   TCP also provides **congestion control.** TCP congestion control
-    > prevents any one TCP connection from swamping the links and
-    > routers between communicating hosts with an excessive amount of
-    > traffic. TCP tries to give connections in a congested link an
-    > equal share of the link bandwidth.
-
-***3.2 Multiplexing and Demultiplexing:***
+### 3.2 Multiplexing and De-multiplexing
 
 -   At the destination host, the transport layer receives segments from
     > the network layer just below. The transport layer has the
