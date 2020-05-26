@@ -53,7 +53,7 @@ application processes running on different hosts.”
 
 - TCP also provides **congestion control.** TCP congestion control prevents any one TCP connection from swamping the links and routers between communicating hosts with an excessive amount of traffic. TCP tries to give connections in a congested link an equal share of the link bandwidth.
 
-### 3.2 Multiplexing and De-multiplexing
+## 3.2 Multiplexing and De-multiplexing
 
 - At the *destination host*, the transport layer receives segments from the network layer just below. The transport layer has the responsibility of delivering the data in these segments to the appropriate application process running in the host.
 
@@ -88,7 +88,7 @@ We discuss multiplexing and de-multiplexing for both UDP then TCP.
 
 ---
 
-#### Connection-less Multiplexing and De-multiplexing (UDP)
+### Connection-less Multiplexing and De-multiplexing (UDP)
 
 - When a UDP socket is created, the transport layer automatically assigns a port number to the socket in the range 1024 to 65535 that is currently not being used by any other UDP port in the host.
 
@@ -98,7 +98,7 @@ We discuss multiplexing and de-multiplexing for both UDP then TCP.
 
 - As a consequence, if two UDP segments have different source IP addresses and/or source port numbers, but have the same destination IP address and destination port number, then the two segments will be directed to the same destination process via the same destination socket.
 
-#### Connection-Oriented Multiplexing and De-multiplexing
+### Connection-Oriented Multiplexing and De-multiplexing
 
 - A TCP socket is identified by a **four-tuple:** (source IP address, source port number, destination IP address, destination port number).
 
@@ -120,7 +120,7 @@ We discuss multiplexing and de-multiplexing for both UDP then TCP.
 
   - But this is not a problem—server B will still be able to correctly de-multiplex the two connections having the same source port number, since the two connections have different source IP addresses.
 
-#### Web Servers and TCP
+### Web Servers and TCP
 
 There is not always a one-to-one correspondence between connection sockets and processes.
 
@@ -128,102 +128,85 @@ In fact, today’s high-performing Web servers often use only one process, and c
 
 ## 3.3 Connection-less Transport: UDP
 
--   UDP, defined in \[RFC 768\],does just about as little as a transport
-     protocol can do.
+- UDP, defined in **\[RFC 768\]**, does just about as little as a transport protocol can do.
 
--   If the application developer chooses UDP instead of TCP, then the
-     application is almost directly talking with IP.
+- That means if an application developer chooses UDP instead of TCP, then the application is almost directly talking with IP.
 
--   With UDP there is no handshaking between sending and receiving
-     transport-layer entities before sending a segment.So, **UDP is
-     said to be connectionless.**
+- With UDP there is no handshaking between sending and receiving transport-layer entities before sending a segment. So, **UDP is said to be connection-less.**
 
-**Example Lifecycle in UDP:**
+### Message Lifecycle with UDP (Interview Question)
 
-“(1)UDP takes messages from the application process, attaches source and
-destination port number fields for the multiplexing/demultiplexing
-service, adds two other small fields, and passes the resulting segment
-to the network layer. (2) The network layer encapsulates the
-transport-layer segment into an IP datagram and then makes a best-effort
-attempt to deliver the segment to the receiving host. (3) If the segment
-arrives at the receiving host, UDP uses the destination port number to
-deliver the segment’s data to the correct application process.”
+1. UDP takes messages from the application process, attaches source and destination port number fields for the multiplexing/de-multiplexing service, adds two other small fields, and passes the resulting segment to the network layer.
 
-**Some applications are better suited for UDP for the following
-reasons:**
+2. The network layer encapsulates the transport-layer segment into an IP datagram and then makes a best-effort attempt to deliver the segment to the receiving host.
 
-1- **Finer application-level control over what data is sent, and when.**
-Under UDP, as
+3. If the segment arrives at the receiving host, UDP uses the destination port number to deliver the segment’s data to the correct application process.
 
-soon as an application process passes data to UDP, UDP will package the
-data inside a UDP segment and immediately pass the segment to the
-network layer. TCP, on the other hand, has a congestion-control
-mechanism that throttles the transport-layer TCP sender when one or more
-links between the source and destination hosts become excessively
-congested. TCP will also continue to resend a segment until the receipt
-of the segment has been acknowledged by the destination, regardless of
-how long reliable delivery takes.
+### Why/When to use UDP
 
-Since **real-time applications** often require a **minimum sending
-rate**, do not want to overly delay segment transmission, and **can
-tolerate some data loss.**
+1. **Finer application-level control over what data is sent, and when.**
+   - Under UDP, as soon as an application process passes data to UDP, UDP will package the data inside a UDP segment and immediately pass the segment to the network layer.
 
-**2- No connection establishment.** TCP uses a three-way handshake
-before it starts to transfer data. UDP just starts. Thus UDP does not
-introduce any delay to establish a connection.
+   - TCP, on the other hand, has a congestion-control mechanism that throttles the transport-layer TCP sender when one or more links between the source and destination hosts become excessively congested.
 
-**3- No connection state.** TCP maintains connection state in the end
-systems. This connection state includes receive and send buffers,
-congestion-control parameters, and sequence and acknowledgment number
-parameters. UDP, on the other hand, does not maintain connection state
-and does not track any of these parameters.
+   - TCP will also continue to resend a segment until the receipt of the segment has been acknowledged by the destination, regardless of how long reliable delivery takes.
 
-**4- Small packet header overhead.** The TCP segment has 20 bytes of
-header overhead in every segment, whereas UDP has only 8 bytes of
-overhead.
+   - Since **real-time applications** often require a **minimum sending rate**, do not want to overly delay segment transmission, and **can tolerate some data loss.**
 
-**Note.** It is possible for an application to have reliable data
-transfer when using UDP. This can be done if reliability is built into
-the application itself
+2. **No connection establishment.**
 
-***3.3.1 UDP Segment
-Structure:***![](./media/image24.png){width="5.609375546806649in"
-height="2.448239282589676in"}
+   - TCP uses a three-way handshake before it starts to transfer data.
+   - UDP just starts. Thus UDP does not introduce any delay to establish a connection.
 
--   The UDP segment structure, shown in Figure 3.7, is defined in
-     RFC 768.
+3. **No connection state.**
 
--   The **application data** occupies the **data field of the UDP
-     segment.**
+   - TCP maintains connection state in the end systems.  This connection state includes receive and send buffers, congestion-control parameters, and sequence and acknowledgment number parameters.
 
--   The UDP header has only **four fields**, each consisting of **two
-     bytes.**
+   - UDP, on the other hand, does not maintain connection state and does not track any of these parameters.
 
--   **Port numbers** allow demultiplexing process to occur.
+4. **Small packet header overhead.**
+  
+   - The TCP segment has 20 bytes of header overhead in every segment, whereas UDP has only 8 bytes of overhead.
 
--   The **length field** specifies the number of bytes in the UDP
-     segment, needed since the size of the data field may differ from
-     one UDP segment to the next.
+However, it is possible for an application to have reliable data transfer when using UDP. This can be done if reliability is built into the application itself.
 
--   The **checksum** is used by the receiving host to check whether
-     errors have been introduced into the segment.
+---
 
-***3.3.2 UDP Checksum:***
+### 3.3.1 UDP Segment Structure
 
-The checksum is used to determine whether bits within the UDP segment
-have been altered as it moved from source to destination.
+<p align='center'><img src="./images/chapter3/2.png"/></p>
 
-***Calculation:*** UDP **at the sender side** performs the 1s complement
-of the sum of all the 16-bit words in the segment, with any overflow
-encountered during the sum being wrapped around. This result is put in
-the checksum field of the UDP segment.
+- The **application data** occupies the **data field of the UDP segment.**
 
-**At the receiver,** all four 16-bit words are added, including the
-checksum. If no errors are introduced into the packet, then clearly the
-sum at the receiver will be 1111111111111111. If one of the bits is a 0,
-then we know that errors have been introduced into the packet.
+- The UDP header has only **four fields**, each consisting of **two bytes.**
 
-***3.4 Principles of Reliable Data Transfer:***
+- **Port numbers** allow de-multiplexing process to occur.
+
+- The **length field** specifies the number of bytes in the UDP segment, needed since the size of the data field may differ from one UDP segment to the next.
+
+- The **checksum** is used by the receiving host to check whether errors have been introduced into the segment.
+
+---
+
+### 3.3.2 UDP Checksum
+
+The checksum is used for **Integrity** to determine whether bits within the UDP segment have been altered as it moved from source to destination.
+
+**At the sender side:**
+
+- Performs the 1s complement of the sum of all the 16-bit words in the segment.
+- Any overflow encountered during the sum being wrapped around.
+- This result is put in the checksum field of the UDP segment.
+
+**At the receiver:**
+
+- All four 16-bit words are added, including the checksum.
+- If no errors are introduced into the packet, then clearly the sum at the receiver will be 1111111111111111.
+- If one of the bits is a 0, then we know that errors have been introduced into the packet.
+
+---
+
+## 3.4 Principles of Reliable Data Transfer
 
 “The general problem of Reliable Data Transfer is of central importance
 to networking. Indeed, if one had to identify a “top-ten” list of
