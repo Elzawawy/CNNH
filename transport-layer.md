@@ -213,137 +213,96 @@ to networking. Indeed, if one had to identify a “top-ten” list of
 fundamentally important problems in all of networking, this would be a
 candidate to lead the list.”
 
--   With a reliable channel, no transferred data bits are corrupted
-     (flipped from 0 to 1, or vice versa) or lost, and all are
-     delivered in the order in which they were sent.
+- With a reliable channel, no transferred data bits are corrupted (flipped from 0 to 1, or vice versa) or lost, and all are delivered in the order in which they were sent.
 
--   It is the responsibility of a **reliable data transfer protocol** to
-     implement this service abstraction provided to the upper-layer
-     entities.
+- It is the responsibility of a **reliable data transfer protocol** to implement this service abstraction provided to the upper-layer entities.
 
--   Note that the layer below the reliable data transfer protocol may be
-     unreliable.
+- Note that the layer below the reliable data transfer protocol may be unreliable.
 
--   We will **incrementally develop** the sender and receiver sides of a
-     reliable data transfer protocol, **considering increasingly
-     complex models** of the underlying channel.
+- We will **incrementally develop** the sender and receiver sides of a reliable data transfer protocol, **considering increasingly complex models** of the underlying channel.
 
--   Figure 3.8 illustrates the framework for our study of reliable data
-     transfer.
+<p align='center'><img src="./images/chapter3/3.png"/></p>
 
--   Figure 3.8(b) illustrates the interfaces for our data transfer
-     protocol.
+- The sending side of the data transfer protocol will be invoked from above by a call to rdt\_send(). It will pass the data to be delivered to the upper layer at the receiving side.
 
--   The sending side of the data transfer protocol will be invoked from
-     above by a call to rdt\_send(). It will pass the data to be
-     delivered to the upper layer at the receiving side.
+- On the receiving side, rdt\_rcv() will be called when a packet arrives from the receiving side of the channel. When the rdt protocol wants to deliver data to the upper layer, it will do so by calling deliver\_data().
 
--   On the receiving side, rdt\_rcv() will be called when a packet
-     arrives from the receiving side of the channel. When the rdt
-     protocol wants to deliver data to the upper layer, it will do so
-     by calling deliver\_data().
+- Both the send and receive sides of rdt send packets to the other side by a call to udt\_send()
 
--   Both the send and receive sides of rdt send packets to the other
-     side by a call to udt\_send()
+- For now, We consider only the case of unidirectional data transfer, that is, data transfer from the sending to the receiving side.
 
--   For now, We consider only the case of unidirectional data transfer,
-     that is, data transfer from the sending to the receiving side. It
-     is important to note that the sending and receiving sides of our
-     protocol will nonetheless need to transmit packets in both
-     directions, as indicated in Figure 3.8.
+- It is important to note that the sending and receiving sides of our protocol will nonetheless need to transmit packets in both directions, as indicated in Figure 3.8.
 
-![](./media/image9.png){width="6.338542213473316in"
-height="4.885959098862642in"}
+---
 
-***3.4.1 Building a Reliable Data Transfer Protocol:***
+### 3.4.1 Building a Reliable Data Transfer Protocol
 
-***Reliable Data Transfer over a Perfectly Reliable Channel:
-rdt1.0:***![](./media/image13.png){width="4.640625546806649in"
-height="3.4375in"}
+We first consider the simplest case, in which the underlying channel is completely reliable. Nothing can go wrong !
 
--   We first consider the simplest case, in which the underlying channel
-     is completely reliable. Nothing can go wrong !
+#### RDT 1.0: Reliable Data Transfer over a Perfectly Reliable Channel
 
--   We have also assumed that the receiver is able to receive data as
-     fast as the sender happens to send data. Thus, there is no need
-     for the receiver to ask the sender to slow down!
+<p align='center'><img src="./images/chapter3/4.png"/></p>
 
--   The finite-state machine (FSM) definitions for the rdt1.0 sender and
-     receiver are shown in Figure 3.9.
+- We have also assumed that the receiver is able to receive data as fast as the sender happens to send data. Thus, there is no need for the receiver to ask the sender to slow down!
 
--   The sending side of rdt simply accepts data from the upper layer via
-     the **rdt\_send(data)** event, creates a packet containing the
-     data via **make\_pkt(data)** and sends the packet into the
-     channel.
+- The finite-state machine (FSM) definitions for the rdt1.0 sender and receiver are shown in Figure 3.9.
 
--   On the receiving side, rdt receives a packet from the underlying
-     channel via the **rdt\_rcv(packet)** event, removes the data from
-     the packet via **extract (packet, data)** and passes the data up
-     to the upper layer via **deliver\_data(data)**
+- The sending side of rdt simply accepts data from the upper layer via the **rdt\_send(data)** event, creates a packet containing the data via **make\_pkt(data)** and sends the packet into the channel.
 
-***Reliable Data Transfer over a Channel with Bit Errors: rdt2.0***
+- On the receiving side, rdt receives a packet from the underlying channel via the **rdt\_rcv(packet)** event, removes the data from the packet via **extract (packet, data)** and passes the data up to the upper layer via **deliver\_data(data)**
 
--   A more realistic model of the underlying channel is one in which
-     bits in a packet may be corrupted.
+Next we move to a more realistic model of the underlying channel is one in which bits in a packet may be corrupted.
 
--   We’ll continue to assume for the moment that all transmitted packets
-     are received (although their bits may be corrupted) in order of
-     sending.
+---
 
--   The message-dictation protocol ***uses both positive acknowledgments
-     (ACK) and negative acknowledgments (NAK).*** These control
-     messages allow the receiver to let the sender know what has been
-     received correctly, and what has failed.
+#### RDT 2.0: Reliable Data Transfer over a Channel with Bit Errors [STOP AND WAIT PROTOCOL]
 
--   In a computer network setting,reliable data transfer protocols based
-     on such retransmission are known as **ARQ (Automatic Repeat
-     reQuest) protocols.**
+- We’ll continue to assume for the moment that all transmitted packets are received (although their bits may be corrupted) in order of sending.
 
--   Three additional protocol capabilities are required in ARQ protocols
-     to handle the presence of bit errors:
+- The message-dictation protocol **uses both positive acknowledgments (ACK) and negative acknowledgments (NAK).** These control messages allow the receiver to let the sender know what has been received correctly, and what has failed.
 
- **Error detection.** First, a mechanism is needed to allow the
+- In a computer network setting,reliable data transfer protocols based on such retransmission are known as **ARQ (Automatic Repeat Request) protocols.**
+
+- Three additional protocol capabilities are required in ARQ protocols to handle the presence of bit errors:
+  - **Error detection.** First, a mechanism is needed to allow the
  receiver to detect when bit errors have occurred.
 
- **Receiver feedback.** Our rdt2.0 protocol will similarly send ACK and
- NAK packets back from the receiver to the sender. In principle, these
- packets need only be one bit long; for example, a 0 value could
- indicate a NAK and a value of 1 could indicate an ACK.
+  - **Receiver feedback.** Our rdt2.0 protocol will similarly send ACK and NAK packets back from the receiver to the sender. In principle, these packets need only be one bit long; for example, a 0 value could indicate a NAK and a value of 1 could indicate an ACK.
 
- **Retransmission.** A packet that is received in error at the receiver
- will be retransmitted by the sender.
+  - **Retransmission.** A packet that is received in error at the receiver will be retransmitted by the sender.
 
--   ***The Sending Side (Figure
-     3.10.a):***![](./media/image34.png){width="6.5in"
-     height="2.6319674103237096in"}
+#### The Sending Side
 
-In the **leftmost state**, the send-side protocol is waiting for data to
-be passed down from the upper layer. When the **rdt\_send(data)** event
-occurs, the sender will create a packet (sndpkt) containing the data to
-be sent, along with a packet checksum and then send the packet via the
-**udt\_send(sndpkt)** operation.
+<p align='center'><img src="./images/chapter3/5.png"/></p>
+
+In the **leftmost state**, the send-side protocol is waiting for data to be passed down from the upper layer.
+
+When the **rdt\_send(data)** event
+occurs, the sender will create a packet  (sndpkt) containing the data to
+be sent, along with a packet checksum and then send the packet via the **udt\_send(sndpkt)** operation.
 
 In the **rightmost state**, the sender protocol is waiting for an ACK or
-a NAK packet from the receiver. If an ACK packet is received, the sender
+a NAK packet from the receiver.
+
+If an ACK packet is received, the sender
 knows that the most recently transmitted packet has been received
 correctly and thus the protocol returns to the state of waiting for data
-from the upper layer. If a NAK is received, the protocol retransmits the
-last packet and waits for an ACK or NAK to be returned by the receiver
+from the upper layer.
+
+If a NAK is received, the protocol retransmits the last packet and waits for an ACK or NAK to be returned by the receiver
 in response to the retransmitted data packet.
 
 Thus, the sender will not send a new piece of data until it is sure that
-the receiver has correctly received the current packet. **STOP AND WAIT
-PROTOCOL**
+the receiver has correctly received the current packet.
 
--   ***The Receiving Side (Figure 3.10.b):***
+#### The Receiving Side
+
+<p align='center'><img src="./images/chapter3/6.png"/></p>
 
 On packet arrival,the receiver replies with either an ACK or a NAK,
 depending on whether or not the received packet is corrupted.
 
-![](./media/image11.png){width="6.104166666666667in"
-height="2.589646762904637in"}
-
--   ***Fatal Flaw in rdt2.0: ***
+#### Fatal Flaw in RDT 2.0
 
 We haven’t accounted for the possibility that the ACK or NAK packet
 could be corrupted!
@@ -352,318 +311,225 @@ The difficulty here is that if an ACK or NAK is corrupted, the sender
 has no way to know whether or not the receiver has correctly received
 the last piece of transmitted data.
 
--   An approach is for the sender simply to r**esend the current data
-     packet** when it receives a garbled ACK or NAK packet. This
-     approach, however, introduces **duplicate packets** into the
-     sender-to-receiver channel. The fundamental difficulty with
-     duplicate packets is that the receiver doesn’t know whether the
-     ACK or NAK it last sent was received correctly at the sender.
-     Thus, it cannot know a priori whether an arriving packet contains
-     new data or is a retransmission!
+An approach is for the sender simply to **resend the current data packet** when it receives a garbled ACK or NAK packet.
 
+This approach, however, introduces **duplicate packets** into the sender-to-receiver channel. The fundamental difficulty with duplicate packets is that the receiver doesn’t know whether the ACK or NAK it last sent was received correctly at the sender. Thus, it cannot know a priori whether an arriving packet contains new data or is a retransmission!
 
--   A simple solution to this new problem is to **add a new field** to
-     the data packet and have the sender number its data packets **by
-     putting a sequence number** into this field. The receiver then
-     need only check this sequence number to determine whether or not
-     the received packet is a retransmission.
+A simple solution to this new problem is to **add a new field** to the data packet and have the sender number its data packets **by putting a sequence number** into this field. The receiver then need only check this sequence number to determine whether or not the received packet is a retransmission. For this simple case of a  protocol, a 1-bit sequence number will suffice.
 
--   For this simple case of a stop-and-wait protocol, a 1-bit sequence
-     number will suffice.
+Since we are currently assuming a channel that does not lose packets, ACK and NAK packets do not themselves need to indicate the sequence number of the packet they are acknowledging.
 
--   Since we are currently assuming a channel that does not lose
-     packets, ACK and NAK packets do not themselves need to indicate
-     the sequence number of the packet they are acknowledging. The
-     sender knows that a received ACK or NAK packet (whether garbled or
-     not) was generated in response to its most recently transmitted
-     data packet.
+The sender knows that a received ACK or NAK packet (whether garbled or not) was generated in response to its most recently transmitted data packet.
 
-***Reliable Data Transfer over a Channel with Bit Errors: rdt2.1
-(Figures 3.11, 3.12)***
+---
 
--   The rdt2.1 sender and receiver FSMs each now have twice as many
-     states as before because the protocol state must now reflect
-     whether the packet currently being sent (by the sender) or
-     expected (at the receiver) should have a sequence number of 0
-     or 1. Actions in state for Seq. number 0 are the same for states
-     for Seq. number 1
+#### RDT 2.1: Reliable Data Transfer over a Channel with Bit Errors
 
--   Protocol rdt2.1 uses both positive and negative acknowledgments from
-     the receiver to the sender. When an out-of-order packet is
-     received, the receiver sends a positive acknowledgment for the
-     packet it has received. When a corrupted packet is received, the
-     receiver sends a negative acknowledgment.
+<p align='center'><img src="./images/chapter3/7.png"/></p>
 
-***Reliable Data Transfer over a Channel with Bit Errors: rdt2.2
-(Figures 3.13, 4.14)***
+<p align='center'><img src="./images/chapter3/8.png"/></p>
 
--   Instead of sending a NAK, we send an ACK for the last correctly
-     received packet. A sender that receives two ACKs for the same
-     packet (that is, receives **duplicate ACKs**) knows that the
-     receiver did not correctly receive the packet following the packet
-     that is being ACK’ed twice. The receiver must now include the
-     sequence number of the packet being acknowledged by an ACK packet
-     and the sender must check the number with ACK.
+- The sender and receiver FSMs each now have twice as many states as before because the protocol state must now reflect whether the packet currently being sent (by the sender) or expected (at the receiver) should have a sequence number of 0 or 1. Actions in state for Seq. number 0 are the same for states for Seq. number 1
 
-![](./media/image37.png){width="6.5in"
-height="4.402777777777778in"}![](./media/image17.png){width="6.5in"
-height="4.194444444444445in"}
+- Protocol rdt2.1 uses both positive and negative acknowledgments from the receiver to the sender.
 
-![](./media/image27.png){width="6.5in" height="4.194444444444445in"}
+- When an out-of-order packet is received, the receiver sends a positive acknowledgment for the packet it has received.
 
-![](./media/image4.png){width="6.5in" height="3.625in"}
+- When a corrupted packet is received, the
+receiver sends a negative acknowledgment.
 
-***Reliable Data Transfer over a Lossy Channel with Bit Errors: rdt3.0:
-(Figure 3.15) ***
+---
 
--   Suppose now that in addition to corrupting bits, the underlying
-     channel can lose packets as well. Two additional concerns must now
-     be addressed by the protocol: how to detect packet loss and what
-     to do when packet loss occurs.
+#### RDT 2.2: Reliable Data Transfer over a Channel with Bit Errors
 
--   Here, we’ll put the burden of **detecting and recovering from lost
-     packets** on the **sender.**
+<p align='center'><img src="./images/chapter3/9.png"/></p>
 
--   *How long must the sender wait to be certain that something has been
-     lost?*
+<p align='center'><img src="./images/chapter3/10.png"/></p>
 
- **Answer**: Sender must wait at least as long as a **round-trip
- delay** between the sender and receiver (which may include buffering
- at intermediate routers) **plus** whatever amount of **time is needed
- to process a packet at the receiver. **
+- Instead of sending a NAK, we send an ACK for the last correctly received packet. A sender that receives two ACKs for the same packet (that is, receives **duplicate ACKs**) knows that the receiver did not correctly receive the packet following the packet that is being ACK’ed twice.
 
--   The problem is this **worst-case maximum delay is very difficult
-     even to estimate.**
+- The receiver must now include the sequence number of the packet being acknowledged by an ACK packet and the sender must check the number with ACK.
 
- Moreover, the protocol should ideally recover from packet fastly as
- possible; waiting for a worst-case delay **could mean a long wait
- until error recovery is initiated.**
+---
 
--   **The practical approach** is for the sender to **judiciously choose
-     a time value** such that packet loss is likely, although not
-     guaranteed, to have happened. And if an ACK is not received within
-     this time, the packet is **retransmitted.**
+### RDT 3.0: Reliable Data Transfer over a Lossy Channel with Bit Errors
 
--   ***Premature Timeouts case.*** If a packet experiences a
-     particularly large delay, the sender may retransmit the packet
-     even though neither the data packet nor its ACK have been lost.
-     This introduces the possibility of **duplicate data packets** in
-     the channel. Implementing a **time-based retransmission
-     mechanism** requires a **countdown timer** that can **interrupt
-     the sender after a given amount of time has expired. **
+<p align='center'><img src="./images/chapter3/11.png"/></p>
 
--   The sender will thus need to be able to (1) start the timer each
+- Suppose now that in addition to corrupting bits, the underlying channel can lose packets as well.
+
+- Two additional concerns must now be addressed by the protocol: how to detect packet loss and what to do when packet loss occurs.
+
+- Here, we’ll put the burden of **detecting and recovering from lost packets** on the **sender.**
+
+- How long must the sender wait to be certain that something has been lost?
+  - Sender must wait at least as long as a round-trip delay between the sender and receiver (which may include buffering at intermediate routers),
+
+  - PLUS whatever amount of time is needed to process a packet at the receiver.
+
+  - The problem is this **worst-case maximum delay is very difficult even to estimate.**
+
+Moreover, the protocol should ideally recover from packet fastly as possible; waiting for a worst-case delay **could mean a long wait until error recovery is initiated.**
+
+- **The practical approach** is for the sender to **judiciously choose a time value** such that packet loss is likely, although not guaranteed, to have happened. And if an ACK is not received within this time, the packet is **retransmitted.**
+
+- **Premature Timeouts case.** If a packet experiences a particularly large delay, the sender may retransmit the packet even though neither the data packet nor its ACK have been lost.
+
+- This introduces the possibility of **duplicate data packets** in the channel. Implementing a **time-based retransmission mechanism** requires a **countdown timer** that can interrupt the sender after a given amount of time has expired.
+
+- The sender will thus need to be able to:
+  1. Start the timer each
      time a packet (either a first-time packet or a retransmission) is
-     sent, (2) respond to a timer interrupt (taking appropriate
-     actions), and (3) stop the
-     timer.![](./media/image35.png){width="6.427083333333333in"
-     height="4.067708880139983in"}
+     sent,
+  2. Respond to a timer interrupt (taking appropriate actions),
+  3. Stop the timer.
+  
+- Because packet sequence numbers alternate between 0 and 1, protocol rdt3.0 is sometimes known as the **alternating-bit protocol.**
 
--   Because packet sequence numbers alternate between 0 and 1, protocol
-     rdt3.0 is sometimes known as the alternating-bit protocol.
+- The receiver in protocol rdt2.2 will also work as the receiver in protocol rdt 3.0.
 
--   The receiver in protocol rdt2.2 will also work as the receiver in
-     protocol rdt 3.0.
+---
 
-***3.4.2 Pipelined Reliable Data Transfer Protocols:***
+### 3.4.2 Pipelined Reliable Data Transfer Protocols
 
--   Rdt3.0’s performance problem is the fact that it is a stop-and-wait
-     protocol.
+#### Problem
 
--   Take an example of Two hosts where the RTT, between those 2 end
-     systems is approximately 30 milliseconds. Suppose that they are
-     connected by a channel with a transmission rate, R, of 1 Gbps (10
-     9 bits per second). With a packet size, L, of 1,000 bytes (8,000
-     bits) per packet, including both header fields and data.
+<p align='center'><img src="./images/chapter3/13.png"/></p>
 
-![](./media/image15.png){width="4.46875in"
-height="1.4166666666666667in"}
+- **Why we need to improve ?** Rdt3.0’s performance problem is the fact that it is a stop-and-wait protocol.
 
--   That is, the sender was busy only 2.7 hundredths of one percent of
-     the time, the sender was able to send only 1,000 bytes in 30.008
-     ms, an effective throughput of only 267 kbps even though a 1 Gbps
-     link was available!
+- Take the example in picture below of two hosts where the RTT, between those 2 end systems is approximately 30 milliseconds. Suppose that they are connected by a channel with a transmission rate, R, of 1 Gbps (10^9 bits per second). With a packet size, L, of 1,000 bytes (8,000 bits) per packet, including both header fields and data.
 
--   Also,we have neglected lower layer protocol-processing times at the
-     sender and receiver, as well as the processing and queuing delays
-     that would occur at any intermediate routers between the sender
-     and receiver. Including these effects would serve only to further
-     increase the delay and further accentuate the poor performance.
+- That is, the sender was busy only 2.7 hundredths of one percent of the time, the sender was able to send only 1,000 bytes in 30.008 ms, an effective throughput of only 267 kbps even though a 1 Gbps link was available!
 
--   The solution to this particular performance problem is simple:
-     Rather than operate in a stop-and-wait manner, the sender is
-     allowed to send multiple packets without waiting for
-     acknowledgments. the utilization of the sender is essentially
-     tripled, this technique is known as **pipelining.**
+<p align='center'><img src="./images/chapter3/12.png"/></p>
 
--   The range of sequence numbers must be increased, since each
-     in-transit packet (not counting retransmissions) must have a
-     unique sequence number and there may be multiple, in-transit,
-     unacknowledged packets.
+- Also,we have neglected lower layer protocol-processing times at the sender and receiver, as well as the processing and queuing delays that would occur at any intermediate routers between the sender and receiver, all theses gets the performance worse.
 
--   The sender and receiver sides of the protocols may have to buffer
-     more than one packet. Minimally, the sender will have to buffer
-     packets that have been transmitted but not yet acknowledged.
-     Buffering of correctly received packets may also be needed at the
-     receiver.
+#### Solution
 
--   Two basic approaches toward pipelined error recovery can be
-     identified: ***Go-Back-N and selective repeat.***
+<p align='center'><img src="./images/chapter3/14.png"/></p>
 
-![](./media/image29.png){width="5.880208880139983in"
-height="3.3830041557305335in"}
+- Rather than operate in a stop-and-wait manner, the sender is allowed to send multiple packets without waiting for acknowledgments. the utilization of the sender is essentially tripled, this technique is known as **pipelining.**
 
-![](./media/image20.png){width="6.5in" height="3.736111111111111in"}
+- The range of sequence numbers must be increased, since each in-transit packet (not counting retransmissions) must have a unique sequence number and there may be multiple, in-transit, unacknowledged packets.
 
-***3.4.3 Go-Back-N (GBN) or The Sliding Window Protocol:***
+- The sender and receiver sides of the protocols may have to buffer more than one packet. Minimally, the sender will have to buffer packets that have been transmitted but not yet acknowledged. Buffering of correctly received packets may also be needed at the receiver.
 
--   Sender is allowed to transmit multiple packets (when available)
-     without waiting for an acknowledgment, but is constrained to have
-     no more than some maximum allowable number, N, of unacknowledged
-     packets in the pipeline. ***Sender View:***
+- Two basic approaches toward pipelined error recovery can be identified: **Go-Back-N and selective repeat.**
 
-***base:*** the sequence number of the oldest unacknowledged
-packet.![](./media/image1.png){width="6.5in"
-height="1.3055555555555556in"}
+---
 
-***nextseqnum:*** the smallest unused sequence number or the sequence
+### 3.4.3 Go-Back-N (GBN) or The Sliding Window Protocol
+
+#### Sender
+
+- Sender is allowed to transmit multiple packets (when available)  without waiting for an acknowledgment, but is constrained to have no more than some maximum allowable number, N, of unacknowledged packets in the pipeline.
+
+<p align='center'><img src="./images/chapter3/15.png"/></p>
+
+- **base:** the sequence number of the oldest unacknowledged
+
+- **nextseqnum:** the smallest unused sequence number or the sequence
 number of the next packet to be sent.
 
--   The range of permissible sequence numbers for transmitted but not
-     yet acknowledged packets can be viewed as a window of size N over
-     the range of sequence numbers.
+- The range of permissible sequence numbers for transmitted but not yet acknowledged packets can be viewed as a window of size N over the range of sequence numbers.
 
--   If k is the number of bits in the packet sequence number field, the
-     range of sequence numbers is thus \[0,$2^{k - 1}$\]. With a finite
-     range of sequence numbers, all arithmetic involving sequence
-     numbers must then be done using modulo $2^{k}$arithmetic.
+- If k is the number of bits in the packet sequence number field, the range of sequence numbers is thus \[0,2^k-1\]. 
 
--   The GBN sender must respond to three types of events: ***Invocation
-     from above, Receipt of an ACK, or A timeout event.***
+- With a finite range of sequence numbers, all arithmetic involving sequence numbers must then be done using modulo 2^k arithmetic.
 
--   An acknowledgment for a packet with sequence number n will be taken
-     to be a **cumulative acknowledgment**, indicating that all packets
-     with a sequence number up to and including n have been correctly
-     received at the receiver.
+<p align='center'><img src="./images/chapter3/16.png"/></p>
 
--   The ***use of cumulative acknowledgments is a natural choice*** for
-     GBN because the nature of delivery of packets from the upper
-     layer. If packet with sequence number k is delivered, those lower
-     than k must be also delivered.
+- The GBN sender must respond to three types of events:
+  1. Invocation from above.
+  2. Receipt of an ACK.
+  3. A timeout event.
 
--   Our sender **uses only a single timer,** which can be thought of as
-     a timer for the oldest transmitted but not yet acknowledged
-     packet. If an ACK is received but there are still additional
-     transmitted but not yet acknowledged packets, the timer is
-     **restarted**. If there are no outstanding, unacknowledged
-     packets, the timer is **stopped.**
+- An acknowledgment for a packet with sequence number n will be taken to be a **cumulative acknowledgment**, indicating that all packets with a sequence number up to and including n have been correctly received at the receiver.
 
--   In our GBN protocol, the receiver discards out-of-order packets.
-     Since retransmission rule will retransmit any delivered but out of
-     order packets. Advantage of this approach is the simplicity of
-     receiver buffering, the receiver need not buffer any out-of-order
-     packets.
+- The use of cumulative acknowledgments is a ***natural choice*** for GBN because the nature of delivery of packets from the upper layer. If packet with sequence number k is delivered, those lower than k must be also delivered.
 
--   Of course, the disadvantage of throwing away a correctly received
-     packet is that the subsequent retransmission of that packet might
-     be lost or garbled and thus even more retransmissions would be
-     required.![](./media/image41.png){width="7.229166666666667in"
-     height="4.088542213473316in"}![](./media/image25.png){width="6.723958880139983in"
-     height="3.4577471566054245in"}
+- Our sender **uses only a single timer,** which can be thought of as a timer for the oldest transmitted but not yet acknowledged packet.
 
-***Example on
-GBN:***![](./media/image23.png){width="5.640625546806649in"
-height="3.028857174103237in"}
+#### Reciever
 
-Figure 3.22 shows the operation of the GBN protocol for the case of a
-window size of four packets. Because of this window size limitation, the
-sender sends packets 0 through 3 but then must wait for one or more of
-these packets to be acknowledged before proceeding. As each successive
-ACK (for example, ACK0 and ACK1) is received, the window slides forward
-and the sender can transmit one new packet (pkt4 and pkt5,
-respectively). On the receiver side, packet 2 is lost and thus packets
-3, 4, and 5 are found to be out of order and are discarded.
+<p align='center'><img src="./images/chapter3/17.png"/></p>
 
-***3.4.4 Selective Repeat (SR):***
+- If an ACK is received but there are still additional transmitted but not yet acknowledged packets, the timer is **restarted**. If there are no outstanding, unacknowledged packets, the timer is **stopped.**
 
--   There are scenarios in which GBN suffers from performance problems.
-     In particular, when the window size and bandwidth-delay product
-     are both large, many packets can be in the pipeline. A single
-     packet error can cause GBN to retransmit a large number of
-     packets, many unnecessarily.
+- In our GBN protocol, the receiver discards out-of-order packets.
 
--   Selective-repeat protocols avoid unnecessary retransmissions by
-     having the sender retransmit only those packets that it suspects
-     were received in error.
+- Since retransmission rule will retransmit any delivered but out of order packets. Advantage of this approach is the simplicity of receiver buffering, the receiver need not buffer any out-of-order packets.
 
--   The receiver individually acknowledge correctly received packets.
+- Of course, the disadvantage of throwing away a correctly received packet is that the subsequent retransmission of that packet might be lost or garbled and thus even more retransmissions would be required.
 
--   A window size of N will again be used to limit the number of
-     outstanding, unacknowledged packets in the pipeline.
+#### GBN Scenario
 
--   The receiver will acknowledge a correctly received packet whether or
-     not it is in order. Out-of-order packets are buffered until any
-     missing packets (that is, packets with lower sequence numbers) are
-     received, at which point a batch of packets can be delivered in
-     order to the upper
-     layer.![](./media/image2.png){width="5.609375546806649in"
-     height="3.3382141294838146in"}
+<p align='center'><img src="./images/chapter3/18.png"/></p>
 
+Figure above shows the operation of the GBN protocol for the case of a window size of four packets. Because of this window size limitation, the sender sends packets 0 through 3 but then must wait for one or more of these packets to be acknowledged before proceeding.
 
+As each successive ACK (for example, ACK0 and ACK1) is received, the window slides forward and the sender can transmit one new packet (pkt4 and pkt5, respectively). On the receiver side, packet 2 is lost and thus packets 3, 4, and 5 are found to be out of order and are discarded.
 
--   Receiver re-acknowledges (rather than ignores) already received
-     packets with certain sequence numbers below the current window
-     base.
+---
 
--   The sender and receiver will not always have an identical view of
-     what has been received correctly and what has not. For SR
-     protocols, this means that the sender and receiver windows will
-     not always
-     coincide.![](./media/image40.png){width="6.411458880139983in"
-     height="3.65625in"}
+### 3.4.4 Selective Repeat (SR)
 
- ![](./media/image30.png){width="6.5in" height="3.625in"}
+- There are scenarios in which GBN suffers from performance problems.
 
-***Lack Of Synchronization
-Consequences:***![](./media/image3.png){width="4.119792213473316in"
-height="3.1458333333333335in"}
+- In particular, when the window size and bandwidth-delay product are both large, many packets can be in the pipeline. A single packet error can cause GBN to retransmit a large number of packets, many unnecessarily.
 
--   **First Case:** The ACKs for the first three packets are lost and
-     the sender retransmits these packets. The receiver thus next
-     receives a packet with sequence number 0—a copy of the first
-     packet sent.
+- Selective-repeat protocols avoid unnecessary retransmissions by having the sender retransmit only those packets that it suspects were received in error. The receiver individually acknowledge correctly received packets.
 
--   Note that the receiver cannot “see” the actions taken by the sender.
-     All the receiver observes is the sequence of messages it receives
-     from the channel and sends into the channel.
+<p align='center'><img src="./images/chapter3/19.png"/></p>
 
+- A window size of N will again be used to limit the number of outstanding, unacknowledged packets in the pipeline.
 
--   **Second Case:** The ACKs for the first three packets are all
-     delivered correctly. The sender thus moves its window forward and
-     sends the fourth, fifth, and sixth packets, with sequence numbers
-     3, 0, and 1, respectively. The packet with sequence number 3 is
-     lost, but the packet with sequence number 0 arrives—a packet
-     containing new
-     data.![](./media/image38.png){width="4.380208880139983in"
-     height="3.2395833333333335in"}
+- The receiver will acknowledge a correctly received packet whether or not it is in order. Out-of-order packets are buffered until any missing packets (that is, packets with lower sequence numbers) are  received, at which point a batch of packets can be delivered in order to the upper layer.
 
--   For the Receiver, There is no way of distinguishing the
-     retransmission of the first packet from an original transmission
-     of the fifth packet.
+- Receiver re-acknowledges (rather than ignores) already received packets with certain sequence numbers below the current window base.
 
--   Clearly, a window size that is 1 less than the size of the sequence
-     number space won’t work. what relationship between seq \# size and
-     window size to avoid this problem ?
+- The sender and receiver will not always have an identical view of what has been received correctly and what has not. For SR protocols, this means that the sender and receiver windows will not always coincide.
 
-***Example on SR Working:***
+#### SR Sender and Receiver Actions
 
-![](./media/image18.png){width="5.432292213473316in" height="3.28125in"}
+<p align='center'><img src="./images/chapter3/20.png"/></p>
+<p align='center'><img src="./images/chapter3/21.png"/></p>
 
-***Summary of reliable data transfer mechanisms and their
-use:***![](./media/image8.png){width="6.202902449693788in"
-height="5.734375546806649in"}
+#### Lack Of Synchronization
 
-***3.5 Connection-Oriented Transport: TCP***
+We discuss two cases where synchronization is an issue.
+
+- **First Case:**
+
+<p align='center'><img src="./images/chapter3/22.png"/></p>
+
+The ACKs for the first three packets are lost and the sender retransmits these packets. The receiver thus next receives a packet with sequence number 0—a copy of the first packet sent.
+
+Note that the receiver cannot “see” the actions taken by the sender. All the receiver observes is the sequence of messages it receives from the channel and sends into the channel.
+
+- **Second Case:**
+
+<p align='center'><img src="./images/chapter3/23.png"/></p>
+
+The ACKs for the first three packets are all delivered correctly. The sender thus moves its window forward and sends the fourth, fifth, and sixth packets, with sequence numbers 3, 0, and 1, respectively. The packet with sequence number 3 is lost, but the packet with sequence number 0 arrives—a packet containing new data.
+
+- For the Receiver, There is no way of distinguishing the retransmission of the first packet from an original transmission of the fifth packet.
+
+- Clearly, a window size that is 1 less than the size of the sequence number space won’t work. what relationship between seq size and window size to avoid this problem ?
+
+#### SR Scenario
+
+<p align='center'><img src="./images/chapter3/24.png"/></p>
+
+---
+
+## 3.5 Connection-Oriented Transport: TCP
+
+### Summary of reliable data transfer mechanisms and their use
+
+<p align='center'><img src="./images/chapter3/25.png"/></p>
 
 -   In order to provide reliable data transfer, TCP relies on many of
      the underlying principles discussed in the previous section,
