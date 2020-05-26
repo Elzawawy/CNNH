@@ -525,7 +525,6 @@ So, the main task of the Internet&#39;s domain name system (DNS) is **providing 
 
 - From the perspective of the invoking application in the user&#39;s host, DNS is a black box providing a simple, straightforward translation service. But in fact, the black box that implements the service is complex, consisting of a large number of DNS servers distributed around the globe, as well as an application-layer protocol that specifies how the DNS servers and querying hosts communicate.
 
----------------
 **Centralized Design of DNS:**
 
 Clients simply direct all queries to the single DNS server, and the DNS server responds directly to the querying clients. Although the simplicity of this design is attractive, a centralized database in a single DNS server simply doesn&#39;t scale.The problems with a centralized design include:
@@ -612,6 +611,7 @@ In P2P file distribution, each peer can redistribute any portion of the file it 
 - The server must transmit one copy of the file to each of the N peers. Thus the server must transmit NF bits. Since the server&#39;s upload rate is u[s] , the time to distribute the file must be at least NF/ u[s]
 
 - The peer with the lowest download rate cannot obtain all F bits of the file in less than F/ d[min] seconds. Thus the minimum distribution time is at least F/ d[min]
+
 ![Equation 1](images/chapter2/slides4.png)
 
 - This provides a lower bound on the minimum distribution time for the client-server architecture.
@@ -626,6 +626,7 @@ In P2P file distribution, each peer can redistribute any portion of the file it 
 - The peer with the lowest download rate cannot obtain all F bits of the file in less than F/d[min] seconds.
 
 - Finally, observe that the total upload capacity of the system as a whole is equal to the upload rate of the server plus the upload rates of each of the individual peers. The system must deliver (upload) F bits to each of the N peers, thus delivering a total of NF bits. This cannot be done at a rate faster than u[total]
+
 ![Equation 2](images/chapter2/slides5.png)
 
 ---------------
